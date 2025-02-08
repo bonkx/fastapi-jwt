@@ -1,10 +1,8 @@
 import uuid
 from typing import Any, Dict, Generic, List, Sequence, Type, TypeVar
 
-from sqlalchemy import func, select
-from sqlalchemy.orm import Session
+from fastapi_pagination.ext.async_sqlmodel import paginate
 from sqlalchemy.sql.expression import Executable
-from sqlmodel import Session, SQLModel, select
 
 from ..services.base import SessionMixin
 
@@ -13,9 +11,7 @@ class BaseRepository(SessionMixin):
     """Base repository class responsible for operations over database."""
 
     async def get_all(self, statement: Executable) -> List[Any]:
-        result = await self.session.exec(statement)
-
-        return result.all()
+        return await paginate(session=self.session, query=statement)
 
     async def get_one(self, statement: Executable) -> Any:
         result = await self.session.exec(statement)

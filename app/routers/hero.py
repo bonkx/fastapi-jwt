@@ -1,4 +1,4 @@
-from typing import Annotated
+from typing import Annotated, Optional
 
 from fastapi import APIRouter, Depends, FastAPI, Query, status
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -7,6 +7,7 @@ from sqlmodel import Field, Session, SQLModel, create_engine, select
 from ..configs.database import get_session
 from ..models.hero import Hero, HeroCreate
 from ..services.hero_service import HeroService
+from ..utils.pagination import CustomPage
 
 # router = APIRouter(
 #     prefix="/heroes",
@@ -16,13 +17,13 @@ from ..services.hero_service import HeroService
 router = APIRouter()
 
 
-@router.get("/", response_model=list[Hero])
+@router.get("/", response_model=CustomPage[Hero])
 async def read_heroes(
-    offset: int = 0,
-    limit: Annotated[int, Query(le=100)] = 10,
+    search: Optional[str] = None,
+    sorting: Optional[str] = None,
     session: Session = Depends(get_session),
 ):
-    return await HeroService(session).list(limit, offset)
+    return await HeroService(session).list(search=search, sorting=sorting)
 
 
 @router.get("/{id}", response_model=Hero)

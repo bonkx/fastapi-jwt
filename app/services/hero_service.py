@@ -1,11 +1,11 @@
-from typing import List
+from typing import List, Optional
 
 from fastapi import HTTPException, status
-from fastapi_pagination import Page, add_pagination, paginate
 
 from ..models.hero import Hero, HeroCreate
 from ..repositories.hero_repo import HeroRepository
 from ..utils.exceptions import ResponseException
+from ..utils.response import ResponseSchema
 from .base import BaseService
 
 # Serivce / Use Case
@@ -21,9 +21,13 @@ class HeroService(BaseService):
     #     if existing_user:
     #         raise ValueError("User already exists.")
 
-    async def list(self, limit: int, offset: int) -> List[Hero]:
+    async def list(
+        self,
+        search: Optional[str] = None,
+        sorting: Optional[str] = None,
+    ) -> List[Hero]:
         """Retrieve all data from the repository."""
-        return await HeroRepository(self.session).list(limit=limit, offset=offset)
+        return await HeroRepository(self.session).list(search=search, sorting=sorting)
 
     async def get_by_id(self, id: int) -> Hero:
         """Retrieve a data by ID."""
@@ -35,7 +39,7 @@ class HeroService(BaseService):
                 resolution="Try again with another ID"
             )
 
-        return obj
+        return ResponseSchema(result=obj)
 
     async def add(self, obj: HeroCreate) -> Hero:
         """Add a new data to the repository."""

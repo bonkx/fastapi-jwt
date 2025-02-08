@@ -1,17 +1,34 @@
 
 from typing import List, Optional
 
-from sqlmodel import Field, Session, SQLModel, select
+from sqlalchemy.sql import text
+from sqlmodel import Field, Session, SQLModel, and_, col, or_, select
 
 from ..models.hero import Hero, HeroCreate, HeroUpdate
+from ..utils.validation import formatSorting
 from .base import BaseRepository
 
 
 class HeroRepository(BaseRepository):
-    async def list(self, limit: int, offset: int) -> List[Hero]:
+    async def list(
+        self,
+        search: Optional[str] = None,
+        sorting: Optional[str] = None
+    ) -> List[Hero]:
         """Retrieve all data."""
         stmt = select(Hero)
-        stmt = stmt.offset(offset).limit(limit)
+
+        if search:
+            stmt = stmt.where(
+                or_(
+                    col(Hero.name).icontains(search),
+                    col(Hero.secret_name).icontains(search),
+                )
+            )
+
+        if sorting:
+            xSort = formatSorting(sorting)
+            stmt = stmt.order_by(text(xSort))
 
         return await self.get_all(stmt)
 

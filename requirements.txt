@@ -4,9 +4,11 @@ uvicorn
 pydantic
 pydantic-settings
 sqlalchemy
+sqlmodel
+aiosqlite
+alembic
 psycopg2-binary 
 pyjwt 
 passlib[bcrypt]
-alembic
-sqlmodel
-aiosqlite
+email-validator
+Faker

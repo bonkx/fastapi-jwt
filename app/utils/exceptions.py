@@ -104,8 +104,8 @@ def register_all_errors(app: FastAPI):
         create_exception_handler(
             status_code=status.HTTP_403_FORBIDDEN,
             initial_detail={
-                "message": "User with email already exists",
-                "error_code": "user_exists",
+                "detail": "User with email already exists",
+                # "error_code": "user_exists",
             },
         ),
     )
@@ -115,8 +115,8 @@ def register_all_errors(app: FastAPI):
         create_exception_handler(
             status_code=status.HTTP_404_NOT_FOUND,
             initial_detail={
-                "message": "User not found",
-                "error_code": "user_not_found",
+                "detail": "User not found",
+                # "error_code": "user_not_found",
             },
         ),
     )
@@ -125,8 +125,8 @@ def register_all_errors(app: FastAPI):
         create_exception_handler(
             status_code=status.HTTP_400_BAD_REQUEST,
             initial_detail={
-                "message": "Invalid Email Or Password",
-                "error_code": "invalid_email_or_password",
+                "detail": "Invalid Email Or Password",
+                # "error_code": "invalid_email_or_password",
             },
         ),
     )
@@ -135,9 +135,9 @@ def register_all_errors(app: FastAPI):
         create_exception_handler(
             status_code=status.HTTP_401_UNAUTHORIZED,
             initial_detail={
-                "message": "Token is invalid Or expired",
+                "detail": "Token is invalid Or expired",
                 "resolution": "Please get new token",
-                "error_code": "invalid_token",
+                # "error_code": "invalid_token",
             },
         ),
     )
@@ -146,9 +146,9 @@ def register_all_errors(app: FastAPI):
         create_exception_handler(
             status_code=status.HTTP_401_UNAUTHORIZED,
             initial_detail={
-                "message": "Token is invalid or has been revoked",
+                "detail": "Token is invalid or has been revoked",
                 "resolution": "Please get new token",
-                "error_code": "token_revoked",
+                # "error_code": "token_revoked",
             },
         ),
     )
@@ -157,9 +157,9 @@ def register_all_errors(app: FastAPI):
         create_exception_handler(
             status_code=status.HTTP_401_UNAUTHORIZED,
             initial_detail={
-                "message": "Please provide a valid access token",
+                "detail": "Please provide a valid access token",
                 "resolution": "Please get an access token",
-                "error_code": "access_token_required",
+                # "error_code": "access_token_required",
             },
         ),
     )
@@ -168,9 +168,9 @@ def register_all_errors(app: FastAPI):
         create_exception_handler(
             status_code=status.HTTP_403_FORBIDDEN,
             initial_detail={
-                "message": "Please provide a valid refresh token",
+                "detail": "Please provide a valid refresh token",
                 "resolution": "Please get an refresh token",
-                "error_code": "refresh_token_required",
+                # "error_code": "refresh_token_required",
             },
         ),
     )
@@ -179,8 +179,8 @@ def register_all_errors(app: FastAPI):
         create_exception_handler(
             status_code=status.HTTP_401_UNAUTHORIZED,
             initial_detail={
-                "message": "You do not have enough permissions to perform this action",
-                "error_code": "insufficient_permissions",
+                "detail": "You do not have enough permissions to perform this action",
+                # "error_code": "insufficient_permissions",
             },
         ),
     )
@@ -190,8 +190,8 @@ def register_all_errors(app: FastAPI):
         create_exception_handler(
             status_code=status.HTTP_403_FORBIDDEN,
             initial_detail={
-                "message": "Tag Already exists",
-                "error_code": "tag_exists",
+                "detail": "Tag Already exists",
+                # "error_code": "tag_exists",
             },
         ),
     )
@@ -201,9 +201,9 @@ def register_all_errors(app: FastAPI):
         create_exception_handler(
             status_code=status.HTTP_403_FORBIDDEN,
             initial_detail={
-                "message": "Account Not verified",
-                "error_code": "account_not_verified",
+                "detail": "Account Not verified",
                 "resolution": "Please check your email for verification details"
+                # "error_code": "account_not_verified",
             },
         ),
     )
@@ -211,8 +211,8 @@ def register_all_errors(app: FastAPI):
     @app.exception_handler(ResponseException)
     async def universal_exception_handler(_, exc: ResponseException):
         content = {
-            "message": f'{exc.detail}',
-            "error_code": f'{exc.status_code}',
+            "detail": f'{exc.detail}',
+            # "error_code": f'{exc.status_code}',
         }
         if exc.resolution:
             content["resolution"] = exc.resolution
@@ -228,7 +228,7 @@ def register_all_errors(app: FastAPI):
     async def internal_server_error(request, exc):
         return JSONResponse(
             content={
-                "message": "Oops! Something went wrong",
+                "detail": "Oops! Something went wrong",
                 "error_code": "server_error",
             },
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -239,7 +239,7 @@ def register_all_errors(app: FastAPI):
         print(str(exc))
         return JSONResponse(
             content={
-                "message": "Oops! Something went wrong",
+                "detail": "Oops! Something went wrong",
                 "error_code": "server_error",
             },
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
