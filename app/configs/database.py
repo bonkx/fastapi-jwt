@@ -10,8 +10,6 @@ from sqlmodel.ext.asyncio.session import AsyncSession
 from .config import settings
 
 # Create Database Engine
-# connect_args = {"check_same_thread": False}
-# engine = create_engine(settings.DATABASE_URL, connect_args=connect_args)
 async_engine = AsyncEngine(create_engine(url=settings.DATABASE_URL))
 
 
@@ -20,7 +18,7 @@ async def init_db() -> None:
         await conn.run_sync(SQLModel.metadata.create_all)
 
 
-async def get_session() -> AsyncSession: # type: ignore
+async def get_session() -> AsyncSession:  # type: ignore
     Session = sessionmaker(
         bind=async_engine, class_=AsyncSession, expire_on_commit=False
     )
