@@ -1,19 +1,19 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, FastAPI, HTTPException, Query, status
+from fastapi import APIRouter, Depends, FastAPI, Query, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlmodel import Field, Session, SQLModel, create_engine, select
 
 from ..configs.database import get_session
-from ..dependencies import get_hero_service
 from ..models.hero import Hero, HeroCreate
 from ..services.hero_service import HeroService
 
-router = APIRouter(
-    prefix="/heroes",
-    tags=["heroes"],
-    responses={404: {"description": "Not found"}},
-)
+# router = APIRouter(
+#     prefix="/heroes",
+#     tags=["heroes"],
+#     responses={404: {"description": "Not found"}},
+# )
+router = APIRouter()
 
 
 @router.get("/", response_model=list[Hero])

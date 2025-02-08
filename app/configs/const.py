@@ -13,7 +13,7 @@ TOKEN_TYPE: Final = "bearer"
 TOKEN_EXPIRE_MINUTES: Final = 60
 
 # Algorithm used to sign the JWT tokens
-TOKEN_ALGORITHM: Final = "HS256"
+JWT_ALGORITHM: Final = "HS256"
 
 # Movies service constants
 MOVIES_TAGS: Final[List[str | Enum] | None] = ["Movies"]

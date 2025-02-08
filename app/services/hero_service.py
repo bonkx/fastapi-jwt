@@ -1,9 +1,11 @@
 from typing import List
 
 from fastapi import HTTPException, status
+from fastapi_pagination import Page, add_pagination, paginate
 
 from ..models.hero import Hero, HeroCreate
-from ..repositories.hero_repo import HeroRepository, IHeroRepository
+from ..repositories.hero_repo import HeroRepository
+from ..utils.exceptions import ResponseException
 from .base import BaseService
 
 # Serivce / Use Case
@@ -27,7 +29,11 @@ class HeroService(BaseService):
         """Retrieve a data by ID."""
         obj = await HeroRepository(self.session).get_by_id(id)
         if obj is None:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Hero with ID {id} not found")
+            raise ResponseException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Hero with ID {id} not found",
+                resolution="Try again with another ID"
+            )
 
         return obj
 

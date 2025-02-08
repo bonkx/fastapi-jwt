@@ -8,5 +8,8 @@ https://levelup.gitconnected.com/structuring-fastapi-project-using-3-tier-design
 
 https://mohsen-khodabakhshi.medium.com/customize-response-class-fastapi-83be3b32aa39
 
+https://www.youtube.com/watch?v=Uw4FPr-dD7Q&list=PLEt8Tae2spYnHy378vMlPH--87cfeh33P
+https://github.com/jod35/fastapi-beyond-CRUD/tree/main
+
 ### Clean Architecture
 router -> service -> repository -> model

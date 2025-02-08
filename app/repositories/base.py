@@ -1,7 +1,6 @@
 import uuid
 from typing import Any, Dict, Generic, List, Sequence, Type, TypeVar
 
-from fastapi import HTTPException
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 from sqlalchemy.sql.expression import Executable
@@ -13,20 +12,23 @@ from ..services.base import SessionMixin
 class BaseRepository(SessionMixin):
     """Base repository class responsible for operations over database."""
 
-    def add_one(self, model: Any) -> None:
+    async def get_all(self, statement: Executable) -> List[Any]:
+        result = await self.session.exec(statement)
+
+        return result.all()
+
+    async def get_one(self, statement: Executable) -> Any:
+        result = await self.session.exec(statement)
+        obj = result.first()
+
+        return obj.model_dump() if obj is not None else None
+
+    async def add_one(self, model: Any) -> None:
         self.session.add(model)
-        self.session.commit()
-        self.session.refresh(model)
-        return model
+        await self.session.commit()
+        # await self.session.refresh(model)
 
-    def add_all(self, models: Sequence[Any]) -> None:
-        self.session.add_all(models)
-
-    def get_one(self, select_stmt: Executable) -> Any:
-        return self.session.scalar(select_stmt)
-
-    def get_all(self, select_stmt: Executable) -> List[Any]:
-        return list(self.session.scalars(select_stmt).all())
+        return model.model_dump()
 
 
 # T = TypeVar("T", bound=SQLModel)
