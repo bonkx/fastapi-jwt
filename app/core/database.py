@@ -23,3 +23,5 @@ async def get_session() -> AsyncSession:  # type: ignore
 
     async with Session() as session:
         yield session
+        
+        await session.close()

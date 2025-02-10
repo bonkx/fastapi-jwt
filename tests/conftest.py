@@ -46,8 +46,11 @@ async def db_session():
 
     async with TestSession() as session:
         yield session
+        await session.close()
 
-    await session.close()
+    # async with test_async_engine.begin() as conn:
+    #     await conn.run_sync(SQLModel.metadata.drop_all)
+
     await conn.rollback()
     await conn.close()
 
@@ -57,10 +60,11 @@ async def client(db_session):
     """Create a test client that uses the override_get_db fixture to return a session."""
 
     async def ovveride_get_session() -> AsyncSession:  # type: ignore
-        try:
-            yield db_session
-        finally:
-            await db_session.close()
+        yield db_session
+        # try:
+        #     yield db_session
+        # finally:
+        #     await db_session.close()
 
     # ovveride Session
     app.dependency_overrides[get_session] = ovveride_get_session

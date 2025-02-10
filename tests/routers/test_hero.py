@@ -25,6 +25,9 @@ def payload_hero_update():
     }
 
 
+#############################################
+# Create
+#############################################
 @pytest.mark.anyio
 async def test_create_heroes(client, api_prefix, payload_hero):
     url = f"{api_prefix}/heroes/"
@@ -68,6 +71,9 @@ async def test_create_heroes_age_validation(client, api_prefix, payload_hero):
     assert data["detail"][0]["msg"] == "Value error, Invalid age"
 
 
+#############################################
+# Get
+#############################################
 @pytest.mark.anyio
 async def test_get_hero(client, api_prefix, payload_hero):
     id = payload_hero['id']
@@ -97,6 +103,9 @@ async def test_get_hero_not_found(client, api_prefix):
     assert data["detail"] == f"Hero with ID {id} not found"
 
 
+#############################################
+# Update
+#############################################
 @pytest.mark.anyio
 async def test_update_hero(client, api_prefix, payload_hero_update):
     id = payload_hero_update['id']
@@ -113,6 +122,32 @@ async def test_update_hero(client, api_prefix, payload_hero_update):
 
 
 @pytest.mark.anyio
+async def test_update_hero_wrong_payload(client, api_prefix, payload_hero_update):
+    id = payload_hero_update['id']
+
+    payload_hero_update["name"] = (
+        True  # name should be a string not a boolean
+    )
+
+    url = f"{api_prefix}/heroes/{id}"
+    response = await client.put(url, json=payload_hero_update)
+    data = response.json()
+    print(data)
+
+    assert response.status_code == 422
+    assert data == {
+        "detail": [
+            {
+                "type": "string_type",
+                "loc": ["body", "name"],
+                "msg": "Input should be a valid string",
+                "input": True,
+            }
+        ]
+    }
+
+
+@pytest.mark.anyio
 async def test_update_hero_not_found(client, api_prefix, payload_hero_update):
     id = 2
     url = f"{api_prefix}/heroes/{id}"
@@ -125,6 +160,9 @@ async def test_update_hero_not_found(client, api_prefix, payload_hero_update):
     assert data["detail"] == f"Hero with ID {id} not found"
 
 
+#############################################
+# Delete
+#############################################
 @pytest.mark.anyio
 async def test_delete_hero(client, api_prefix):
     id = 1
