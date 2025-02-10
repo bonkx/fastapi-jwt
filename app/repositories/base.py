@@ -17,14 +17,20 @@ class BaseRepository(SessionMixin):
         result = await self.session.exec(statement)
         obj = result.first()
 
-        return obj.model_dump() if obj is not None else None
+        return obj if obj is not None else None
 
     async def add_one(self, model: Any) -> None:
         self.session.add(model)
         await self.session.commit()
-        # await self.session.refresh(model)
+        await self.session.refresh(model)
 
         return model.model_dump()
+
+    async def delete_one(self, model: Any) -> None:
+        await self.session.delete(model)
+        await self.session.commit()
+
+        return model
 
 
 # T = TypeVar("T", bound=SQLModel)

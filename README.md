@@ -39,7 +39,7 @@ $ make run
   - [x] Error Exception
 - [] Auth
   - [] Register, Send verification Email
-  - [] Send Email with Fastapi-mail
+  - [] Send Email with [Fastapi-mail](https://sabuhish.github.io/fastapi-mail/)
   - [] Open Link Verification Email
   - [] Resend Verification Email Code
   - [] Login
@@ -88,3 +88,5 @@ https://mohsen-khodabakhshi.medium.com/customize-response-class-fastapi-83be3b32
 
 https://www.youtube.com/watch?v=Uw4FPr-dD7Q&list=PLEt8Tae2spYnHy378vMlPH--87cfeh33P
 https://github.com/jod35/fastapi-beyond-CRUD/tree/main
+
+https://github.com/jonra1993/fastapi-alembic-sqlmodel-async/tree/main

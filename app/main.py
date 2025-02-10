@@ -3,27 +3,25 @@
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
-from fastapi.responses import JSONResponse
 from fastapi_pagination import add_pagination
 from fastapi_pagination.api import set_items_transformer
 from starlette.responses import RedirectResponse
 
-from .configs.const import OPEN_API_DESCRIPTION, OPEN_API_TITLE
-from .configs.database import init_db
-from .configs.version import __version__
+from .core.const import OPEN_API_DESCRIPTION, OPEN_API_TITLE
+from .core.database import init_db
+from .core.version import __version__
 from .internal import admin
 from .middleware import register_middleware
-from .routers import hero, items, users
+from .routers import employee, hero, users
 from .utils.exceptions import register_all_errors
+
+api_version = "v1"
+version_prefix = f"/api/{api_version}"
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    await init_db()
-    yield
-
-api_version = "v1"
-version_prefix = f"/api/{api_version}"
+    yield await init_db()
 
 app = FastAPI(
     lifespan=lifespan,
@@ -56,6 +54,7 @@ register_middleware(app)
 # Include all routers in here
 app.include_router(users.router, prefix=f"{version_prefix}/users", tags=["users"])
 app.include_router(hero.router, prefix=f"{version_prefix}/heroes", tags=["heroes"])
+app.include_router(employee.router, prefix=f"{version_prefix}/employees", tags=["employees"])
 app.include_router(
     admin.router,
     prefix="/admin",

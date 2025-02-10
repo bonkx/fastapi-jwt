@@ -1,10 +1,12 @@
 
 from typing import List, Optional
 
+from fastapi import status
 from sqlalchemy.sql import text
 from sqlmodel import Field, Session, SQLModel, and_, col, or_, select
 
 from ..models.hero import Hero, HeroCreate, HeroUpdate
+from ..utils.exceptions import ResponseException
 from ..utils.validation import formatSorting
 from .base import BaseRepository
 
@@ -36,24 +38,34 @@ class HeroRepository(BaseRepository):
         """Retrieve a data by its ID."""
         stmt = select(Hero).where(Hero.id == id)
         res = await self.get_one(stmt)
-        if not res:
-            return None
+
+        if res is None:
+            raise ResponseException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Hero with ID {id} not found",
+                resolution="Try again with another ID"
+            )
 
         return res
 
     async def create(self, obj: HeroCreate) -> Hero:
         """Add a new data."""
         # validate basemodel
-        data_dict = obj.model_dump()
-        new_model = Hero(**data_dict)
+        db_hero = Hero.model_validate(obj)
 
-        res = await self.add_one(new_model)
+        res = await self.add_one(db_hero)
         return res
 
     async def edit(self, id: int, obj: HeroUpdate) -> Hero:
         """Edit data."""
-        pass
+        hero_db = await self.get_by_id(id)
+        hero_data = obj.model_dump(exclude_unset=True)
+        hero_db.sqlmodel_update(hero_data)
+
+        res = await self.add_one(hero_db)
+        return res
 
     async def delete(self, id: int) -> None:
         """Delete data."""
-        pass
+        hero_db = await self.get_by_id(id)
+        return await self.delete_one(hero_db)

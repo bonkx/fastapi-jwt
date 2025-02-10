@@ -1,6 +1,6 @@
-fastapi
+fastapi[standard]
 fastapi-pagination
-uvicorn
+uvicorn[standard]
 pydantic
 pydantic-settings
 sqlalchemy
@@ -12,3 +12,6 @@ pyjwt
 passlib[bcrypt]
 email-validator
 Faker
+fastapi-mail
+pytest
+pytest-cov

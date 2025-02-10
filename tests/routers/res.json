@@ -1,0 +1,11 @@
+{
+  "detail": [
+    {
+      "type": "value_error",
+      "loc": ["body", "age"],
+      "msg": "Value error, Invalid age",
+      "input": -1,
+      "ctx": { "error": {} }
+    }
+  ]
+}

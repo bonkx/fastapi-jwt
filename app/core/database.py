@@ -1,10 +1,8 @@
 # db connection related stuff
-from typing import Annotated
 
-from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncEngine
 from sqlalchemy.orm import sessionmaker
-from sqlmodel import Session, SQLModel, create_engine
+from sqlmodel import SQLModel, create_engine
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 from .config import settings
@@ -25,11 +23,3 @@ async def get_session() -> AsyncSession:  # type: ignore
 
     async with Session() as session:
         yield session
-
-
-# def get_session():
-#     with Session(engine) as session:
-#         yield session
-
-
-# SessionDep = Annotated[Session, Depends(get_session)]

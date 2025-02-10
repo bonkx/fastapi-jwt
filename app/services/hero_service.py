@@ -5,7 +5,6 @@ from fastapi import HTTPException, status
 from ..models.hero import Hero, HeroCreate
 from ..repositories.hero_repo import HeroRepository
 from ..utils.exceptions import ResponseException
-from ..utils.response import ResponseSchema
 from .base import BaseService
 
 # Serivce / Use Case
@@ -32,14 +31,8 @@ class HeroService(BaseService):
     async def get_by_id(self, id: int) -> Hero:
         """Retrieve a data by ID."""
         obj = await HeroRepository(self.session).get_by_id(id)
-        if obj is None:
-            raise ResponseException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail=f"Hero with ID {id} not found",
-                resolution="Try again with another ID"
-            )
-
-        return ResponseSchema(result=obj)
+        # return obj
+        return obj.model_dump()
 
     async def add(self, obj: HeroCreate) -> Hero:
         """Add a new data to the repository."""
@@ -49,12 +42,8 @@ class HeroService(BaseService):
 
     async def edit(self, id: int, obj: HeroCreate) -> Hero:
         """Edit data to the repository."""
-        await self.get_by_id(id)
-
-        return await self.repository.edit(id, obj)
+        return await HeroRepository(self.session).edit(id=id, obj=obj)
 
     async def delete(self, id: int) -> None:
         """Delete data to the repository."""
-        await self.get_by_id(id)
-
-        return await self.repository.delete(id)
+        return await HeroRepository(self.session).delete(id)

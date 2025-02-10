@@ -6,7 +6,7 @@ from typing import Annotated, Optional
 from fastapi import Depends, Header
 from sqlmodel import Field, Session, SQLModel, create_engine, select
 
-from .configs.config import Settings
+from .core.config import Settings
 
 
 @lru_cache

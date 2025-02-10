@@ -34,6 +34,7 @@ def register_middleware(app: FastAPI):
         "http://localhost:3000",
     ]
     allowed_hosts = [
+        "test",
         "localhost", "127.0.0.1", "0.0.0.0",
     ]
 

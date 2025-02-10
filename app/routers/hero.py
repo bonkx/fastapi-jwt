@@ -4,10 +4,11 @@ from fastapi import APIRouter, Depends, FastAPI, Query, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlmodel import Field, Session, SQLModel, create_engine, select
 
-from ..configs.database import get_session
-from ..models.hero import Hero, HeroCreate
+from ..core.database import get_session
+from ..models.hero import Hero, HeroCreate, HeroUpdate
 from ..services.hero_service import HeroService
 from ..utils.pagination import CustomPage
+from ..utils.response import IGetResponseBase, create_response
 
 # router = APIRouter(
 #     prefix="/heroes",
@@ -40,3 +41,20 @@ async def create_hero(
     session: Session = Depends(get_session),
 ):
     return await HeroService(session).add(hero)
+
+
+@router.put("/{id}", response_model=Hero)
+async def update_hero(
+    id: int,
+    hero: HeroUpdate,
+    session: Session = Depends(get_session),
+):
+    return await HeroService(session).edit(id=id, obj=hero)
+
+
+@router.delete("/{id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_hero(
+    id: int,
+    session: Session = Depends(get_session),
+):
+    return await HeroService(session).delete(id)
