@@ -7,6 +7,7 @@ class Settings(BaseSettings):
     #############################################
     # FastAPI environment variables
     #############################################
+    DEBUG: bool = False
     DOMAIN: str
     FIRST_SUPERUSER_PASSWORD: str
     FIRST_SUPERUSER_EMAIL: str

@@ -20,8 +20,8 @@ router = APIRouter()
 
 @router.get("/", response_model=CustomPage[Hero])
 async def read_heroes(
-    search: Optional[str] = None,
-    sorting: Optional[str] = None,
+    search: Optional[str] = Query(None, description="Search by name or secret_name", ),
+    sorting: Optional[str] = Query(None, description="Sort by Model field e.g. id:desc or name:asc", ),
     session: Session = Depends(get_session),
 ):
     return await HeroService(session).list(search=search, sorting=sorting)

@@ -26,6 +26,9 @@ class BaseRepository(SessionMixin):
 
         return model.model_dump()
 
+    # def add_all(self, models: Sequence[Any]) -> None:
+    #     self.session.add_all(models)
+
     async def delete_one(self, model: Any) -> None:
         await self.session.delete(model)
         await self.session.commit()

@@ -9,7 +9,7 @@ from fastapi_pagination.api import set_items_transformer
 from starlette.responses import RedirectResponse
 
 from .core import config
-from .core.database import init_db
+from .core.database import init_db, sessionmanager
 from .dependencies import get_settings
 from .middleware import register_middleware
 from .routers.base import register_all_routers
@@ -20,6 +20,9 @@ from .utils.exceptions import register_all_errors
 async def lifespan(app: FastAPI):
     await init_db()
     yield
+    if sessionmanager._engine is not None:
+        # Close the DB connection
+        await sessionmanager.close()
 
 app = FastAPI(
     lifespan=lifespan,

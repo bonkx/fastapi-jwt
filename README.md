@@ -87,8 +87,9 @@ https://medium.com/@lautisuarez081/fastapi-best-practices-and-design-patterns-bu
 Generic Repository in FastApi that is managing relationships - PART 1
 https://dev.to/messanga11/generic-repository-in-fastapi-that-is-managing-relationships-part-1-1k40 
 
-Structuring FastAPI Project Using 3-Tier Design Pattern
+Structuring FastAPI Project Using 3-Tier Design Pattern - fastapi-services-oauth2 (Used for service and repo)
 https://levelup.gitconnected.com/structuring-fastapi-project-using-3-tier-design-pattern-4d2e88a55757
+https://github.com/viktorsapozhok/fastapi-services-oauth2
 
 How To Customize Default JSON Response Class in FastAPI
 https://mohsen-khodabakhshi.medium.com/customize-response-class-fastapi-83be3b32aa39

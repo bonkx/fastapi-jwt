@@ -29,7 +29,7 @@ class HeroRepository(BaseRepository):
             )
 
         if sorting:
-            xSort = formatSorting(sorting)
+            xSort = formatSorting(Hero, sorting)
             stmt = stmt.order_by(text(xSort))
 
         return await self.get_all(stmt)

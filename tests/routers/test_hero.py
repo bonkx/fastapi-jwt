@@ -1,6 +1,13 @@
 # import time
+import math
+from random import randrange
 
 import pytest
+from faker import Faker
+
+from app.models.hero import Hero, HeroCreate
+
+fake = Faker()
 
 
 @pytest.fixture()
@@ -191,3 +198,36 @@ async def test_read_empty_heroes(client, api_prefix):
     assert response.status_code == 200
     assert data["results"] == []
     assert data["total"] == 0
+
+
+@pytest.mark.anyio
+async def test_read_heroes(client, api_prefix, db_session):
+    page = 3
+    size = 5
+    n = 21
+    total_pages = math.ceil(n / size)
+
+    # generate mock data using faker
+    for _ in range(n):
+        model = HeroCreate(
+            name=fake.name(),
+            age=randrange(20, 40),
+            secret_name=fake.unique.first_name(),
+
+        )
+        db_hero = Hero.model_validate(model)
+        db_session.add(db_hero)
+
+    await db_session.commit()
+
+    query_params = {"page": page, "size": size}
+    url = f"{api_prefix}/heroes/"
+    response = await client.get(url, params=query_params)
+    data = response.json()
+    print(data)
+
+    assert data["results"] != []
+    assert data["total"] == n
+    assert data["page"] == page
+    assert data["size"] == size
+    assert data["pages"] == total_pages

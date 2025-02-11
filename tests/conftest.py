@@ -6,13 +6,12 @@ from sqlalchemy.orm import sessionmaker
 from sqlmodel import SQLModel, StaticPool, create_engine
 from sqlmodel.ext.asyncio.session import AsyncSession
 
+from app.core.config import settings
 from app.core.database import get_session
 from app.main import app
 
 BASE_URL = 'http://test'
 DATABASE_URL = 'sqlite+aiosqlite:///:memory:'
-api_version = "v1"
-version_prefix = f"/api/{api_version}"
 
 # Create Database Engine
 test_async_engine = AsyncEngine(create_engine(
@@ -30,7 +29,7 @@ TestSession = sessionmaker(
 
 @pytest.fixture(autouse=True)
 def api_prefix():
-    return version_prefix
+    return settings.API_PREFIX
 
 
 @pytest.fixture(scope="session")
