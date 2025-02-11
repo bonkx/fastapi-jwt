@@ -176,3 +176,18 @@ async def test_delete_hero(client, api_prefix):
     # Try to get the deleted item
     response = await client.get(url)
     assert response.status_code == 404
+
+
+#############################################
+# List
+#############################################
+@pytest.mark.anyio
+async def test_read_empty_heroes(client, api_prefix):
+    url = f"{api_prefix}/heroes/"
+    response = await client.get(url)
+    data = response.json()
+    print(data)
+
+    assert response.status_code == 200
+    assert data["results"] == []
+    assert data["total"] == 0

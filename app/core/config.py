@@ -12,6 +12,10 @@ class Settings(BaseSettings):
     FIRST_SUPERUSER_EMAIL: str
     ENCRYPT_KEY: str
     JWT_SECRET: str
+    JWT_ALGORITHM: str = "HS256"
+    ACCESS_TOKEN_EXPIRE_MINUTES: int
+    REFRESH_TOKEN_EXPIRE_MINUTES: int
+    TOKEN_TYPE: str = "bearer"
 
     #############################################
     # PostgreSQL database environment variables
@@ -43,7 +47,16 @@ class Settings(BaseSettings):
     #############################################
     # OpenAPI variables
     #############################################
+    OPEN_API_TITLE: str = "API Hub"
+    OPEN_API_DESCRIPTION: str = "Demo API over Postgres database built with FastAPI."
     OPENAI_API_KEY: str
+
+    #############################################
+    # FastAPI constants
+    #############################################
+    APP_VERSION: str = "0.1.0"
+    API_VERSION: str = "v1"
+    API_PREFIX: str = f"/api/{API_VERSION}"
 
     model_config = SettingsConfigDict(env_file=".env")
 

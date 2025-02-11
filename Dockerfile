@@ -5,7 +5,7 @@ WORKDIR /app
 COPY ./requirements.txt /app/requirements.txt
 
 RUN apt-get update \
-    && apt-get install gcc -y \
+    && apt-get install gcc postgresql-client -y \
     && apt-get clean
 
 RUN pip install --no-cache-dir --upgrade -r /app/requirements.txt  \
