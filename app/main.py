@@ -18,7 +18,7 @@ from .utils.exceptions import register_all_errors
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    await init_db()
+    # await init_db()
     yield
     if sessionmanager._engine is not None:
         # Close the DB connection

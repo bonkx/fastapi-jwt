@@ -1,6 +1,6 @@
 # import time
 import math
-from random import randrange
+from random import randint
 
 import pytest
 from faker import Faker
@@ -211,7 +211,7 @@ async def test_read_heroes(client, api_prefix, db_session):
     for _ in range(n):
         model = HeroCreate(
             name=fake.name(),
-            age=randrange(20, 40),
+            age=randint(20, 40),
             secret_name=fake.unique.first_name(),
 
         )

@@ -8,7 +8,7 @@ router -> service -> repository -> model
 
 ## How to Run
 
-```bash
+```sh
 # clone the repo
 $ git clone repo
 
@@ -19,7 +19,7 @@ $ cd repo
 $ cp .env.example .env
 
 # seeds data to database like status
-$ db migrate
+$ db seeds or migrate
 
 # build docker
 $ make build
@@ -28,12 +28,50 @@ $ make build
 $ make run
 ```
 
+## How to Setup Alembic
+
+```sh
+$ alembic init -t async alembic
+
+# import SQLModel into script.py.mako
+from alembic import op
+import sqlalchemy as sa
+import sqlmodel             # NEW
+${imports if imports else ""}
+
+# update env.py 
+from sqlalchemy.ext.asyncio import async_engine_from_config
+from sqlmodel import SQLModel                       # NEW
+
+from alembic import context
+
+from app.models import Song                         # NEW
+
+...
+..
+# target_metadata = mymodel.Base.metadata
+target_metadata = SQLModel.metadata             # UPDATED
+..
+...
+
+# Update sqlalchemy.url in project/alembic.ini:
+$ sqlalchemy.url = postgresql+asyncpg://postgres:postgres@db:5432/foo
+$ sqlalchemy.url = %(DATABASE_URL)s # if using .env
+
+# To generate the first migration file, run:
+$ alembic revision --autogenerate -m "init"
+
+# Apply the migration:
+$ alembic upgrade head
+
+```
+
 ### Todo List
 
-- [x] FastAPI Log file, Favicon
+- [x] FastAPI Log file
 - [x] FastAPI Swagger
 - [x] FastAPI Clean Architecture Pattern
-  - [x] Routers (controller)
+  - [x] Routers (handler)
   - [x] Service (usecase - logic process)
   - [x] Repository (process to DB)
   - [x] Error Exception
@@ -58,14 +96,13 @@ $ make run
   - [] Deletion Account with OTP
   - [] Recover deleted account (Admin role)
   - [] User Activity with interval (last login at, ip address in middleware)
-- [] CRUD
+- [x] CRUD
   - [x] Pagination with custom Paginate [FastAPI Pagination](https://uriyyo-fastapi-pagination.netlify.app/)
   - [x] Sort + Search function in List Data
   - [x] Create Data
-  - [] Edit Data
-  - [] Delete Data
+  - [x] Edit Data
+  - [x] Delete Data
 - [] Preload Model (Associations Struct)
-- [] Struct MarshalJSON (Custom representation)
 - [] Open API with API KEY middleware
 - [] Upload Files
 - [] Remove Files
@@ -80,6 +117,7 @@ $ make run
 
 ### [FastAPI Tutorial](https://fastapi.tiangolo.com/tutorial/)
 ### [Structure FastAPI Projects - How to Structure Your FastAPI Projects](https://medium.com/@amirm.lavasani/how-to-structure-your-fastapi-projects-0219a6600a8f)
+### [FastAPI with Async SQLAlchemy, SQLModel, and Alembic](https://testdriven.io/blog/fastapi-sqlmodel/)
 
 FastAPI Best Practices and Design Patterns: Building Quality Python APIs
 https://medium.com/@lautisuarez081/fastapi-best-practices-and-design-patterns-building-quality-python-apis-31774ff3c28a

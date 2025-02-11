@@ -7,6 +7,7 @@ sqlalchemy
 sqlmodel
 aiosqlite
 alembic
+asyncpg
 psycopg2-binary 
 pyjwt 
 passlib[bcrypt]

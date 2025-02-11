@@ -1,8 +1,11 @@
 dev:
 	python main.py
 
+migrations:
+	alembic revision --autogenerate -m "${MSG}"
+
 migrate:
-	python app/configs/migrate.py
+	alembic upgrade head
 
 pip:
 	pip install -r requirements.txt
