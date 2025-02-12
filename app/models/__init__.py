@@ -1,1 +1,1 @@
-from .hero import Hero, HeroCreate, HeroUpdate
+from .hero import *

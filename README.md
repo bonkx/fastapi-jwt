@@ -2,8 +2,8 @@
 
 FastAPI Rest API with [SQLModel](https://sqlmodel.tiangolo.com/) (AsyncSession) and Uvicorn
 
-
 ## Clean Architecture Pattern
+
 router -> service -> repository -> model
 
 ## How to Run
@@ -39,13 +39,16 @@ import sqlalchemy as sa
 import sqlmodel             # NEW
 ${imports if imports else ""}
 
-# update env.py 
+# update env.py for db config
 from sqlalchemy.ext.asyncio import async_engine_from_config
 from sqlmodel import SQLModel                       # NEW
 
 from alembic import context
 
-from app.models import Song                         # NEW
+load_dotenv()  # NEW
+
+config = context.config
+config.set_main_option('sqlalchemy.url', os.getenv("DATABASE_URL"))  # NEW
 
 ...
 ..
@@ -54,14 +57,14 @@ target_metadata = SQLModel.metadata             # UPDATED
 ..
 ...
 
-# Update sqlalchemy.url in project/alembic.ini:
-$ sqlalchemy.url = postgresql+asyncpg://postgres:postgres@db:5432/foo
-$ sqlalchemy.url = %(DATABASE_URL)s # if using .env
 
 # To generate the first migration file, run:
 $ alembic revision --autogenerate -m "init"
 
-# Apply the migration:
+# To Rolling a Migration Back
+$ alembic downgrade -1
+
+# To Apply the migration:
 $ alembic upgrade head
 
 ```
@@ -114,16 +117,17 @@ $ alembic upgrade head
 
 ---
 
-
 ### [FastAPI Tutorial](https://fastapi.tiangolo.com/tutorial/)
+
 ### [Structure FastAPI Projects - How to Structure Your FastAPI Projects](https://medium.com/@amirm.lavasani/how-to-structure-your-fastapi-projects-0219a6600a8f)
+
 ### [FastAPI with Async SQLAlchemy, SQLModel, and Alembic](https://testdriven.io/blog/fastapi-sqlmodel/)
 
 FastAPI Best Practices and Design Patterns: Building Quality Python APIs
 https://medium.com/@lautisuarez081/fastapi-best-practices-and-design-patterns-building-quality-python-apis-31774ff3c28a
 
 Generic Repository in FastApi that is managing relationships - PART 1
-https://dev.to/messanga11/generic-repository-in-fastapi-that-is-managing-relationships-part-1-1k40 
+https://dev.to/messanga11/generic-repository-in-fastapi-that-is-managing-relationships-part-1-1k40
 
 Structuring FastAPI Project Using 3-Tier Design Pattern - fastapi-services-oauth2 (Used for service and repo)
 https://levelup.gitconnected.com/structuring-fastapi-project-using-3-tier-design-pattern-4d2e88a55757

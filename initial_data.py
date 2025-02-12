@@ -8,7 +8,8 @@ from fastapi import Depends
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 from app.core.database import get_session
-from app.models.hero import Hero, HeroCreate
+from app.models.hero import (Hero, HeroCreate, HeroPublisher,
+                             HeroPublisherCreate)
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 # Get current directory
@@ -16,8 +17,10 @@ CUR_DIR = Path(__file__).parent.absolute()
 
 
 async def populate_hero_data(session: AsyncSession = Depends(get_session)):
+    # create HeroPublisher
+
     # read json file
-    json_file = CUR_DIR/'scripts/superheroes.json'
+    json_file = CUR_DIR/'tests/data/superheroes.json'
 
     with open(json_file) as json_data:
         d = json.load(json_data)

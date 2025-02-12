@@ -1,7 +1,16 @@
+guard-%:
+	@ if [ "${${*}}" = "" ]; then \
+        echo "Environment variable $* not set"; \
+        exit 1; \
+	fi
+
+hello: guard-MSG
+	@echo ${MSG}
+
 dev:
 	python main.py
 
-migrations:
+migrations: guard-MSG
 	alembic revision --autogenerate -m "${MSG}"
 
 migrate:
@@ -22,3 +31,5 @@ cov:
 
 cov-html:
 	pytest --cov=app --cov-report=html tests/
+
+	
