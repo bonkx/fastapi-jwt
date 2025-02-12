@@ -5,7 +5,7 @@ from sqlmodel import Field, Session, SQLModel, create_engine, select
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 from ..core.database import get_session
-from ..models.hero import Hero, HeroCreate, HeroUpdate
+from ..models import Hero, HeroCreate, HeroUpdate
 from ..services.hero_service import HeroService
 from ..utils.pagination import CustomPage
 

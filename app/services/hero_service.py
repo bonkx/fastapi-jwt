@@ -2,7 +2,7 @@ from typing import List, Optional
 
 from fastapi import HTTPException, status
 
-from ..models.hero import Hero, HeroCreate
+from ..models import Hero, HeroCreate, HeroUpdate
 from ..repositories.hero_repo import HeroRepository
 from ..utils.exceptions import ResponseException
 from .base import BaseService
@@ -31,8 +31,7 @@ class HeroService(BaseService):
     async def get_by_id(self, id: int) -> Hero:
         """Retrieve a data by ID."""
         obj = await HeroRepository(self.session).get_by_id(id)
-        # return obj
-        return obj.model_dump()
+        return obj
 
     async def add(self, obj: HeroCreate) -> Hero:
         """Add a new data to the repository."""
@@ -40,7 +39,7 @@ class HeroService(BaseService):
         # await self.check_user_exists(user_data.email)
         return await HeroRepository(self.session).create(obj)
 
-    async def edit(self, id: int, obj: HeroCreate) -> Hero:
+    async def edit(self, id: int, obj: HeroUpdate) -> Hero:
         """Edit data to the repository."""
         return await HeroRepository(self.session).edit(id=id, obj=obj)
 

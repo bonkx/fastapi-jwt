@@ -47,8 +47,8 @@ async def db_session():
         yield session
         await session.close()
 
-    # async with test_async_engine.begin() as conn:
-    #     await conn.run_sync(SQLModel.metadata.drop_all)
+    async with test_async_engine.begin() as conn:
+        await conn.run_sync(SQLModel.metadata.drop_all)
 
     await conn.rollback()
     await conn.close()
@@ -70,3 +70,33 @@ async def client(db_session):
 
     async with AsyncClient(transport=ASGITransport(app=app), base_url=BASE_URL) as client:
         yield client
+
+
+@pytest.fixture()
+def payload_hero_publisher():
+    return {
+        "id": 1,
+        "name": "Marvel Comics",
+    }
+
+
+@pytest.fixture()
+def payload_hero():
+    return {
+        "id": 1,
+        "name": "Tony Stark",
+        "secret_name": "Iron Man",
+        "age": 40,
+        "hero_publisher_id": 1,
+    }
+
+
+@pytest.fixture()
+def payload_hero_update():
+    return {
+        "id": 1,
+        "name": "Tony Stark Update",
+        "secret_name": "Iron Man Update",
+        "age": 30,
+        "hero_publisher_id": 1,
+    }

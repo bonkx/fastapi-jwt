@@ -40,6 +40,7 @@ class HeroCreate(SQLModel):
     name: str
     age: int
     secret_name: str
+    hero_publisher_id: int
 
     @field_validator("age")
     def check_age(cls, value):
