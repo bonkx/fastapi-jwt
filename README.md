@@ -28,7 +28,7 @@ $ make build
 $ make run
 ```
 
-## How to Setup Alembic
+## How to Setup async Alembic SQLModel
 
 ```sh
 $ alembic init -t async alembic
@@ -40,15 +40,21 @@ import sqlmodel             # NEW
 ${imports if imports else ""}
 
 # update env.py for db config
+from dotenv import load_dotenv  # NEW
 from sqlalchemy.ext.asyncio import async_engine_from_config
 from sqlmodel import SQLModel                       # NEW
 
 from alembic import context
+# Import all your models here
+from app.models import Hero
 
 load_dotenv()  # NEW
 
+DATABASE_URL = os.getenv("DATABASE_URL")  # NEW
+connection_string = f'{DATABASE_URL}'  # NEW
+
 config = context.config
-config.set_main_option('sqlalchemy.url', os.getenv("DATABASE_URL"))  # NEW
+config.set_main_option('sqlalchemy.url', connection_string)  # NEW
 
 ...
 ..

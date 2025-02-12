@@ -9,11 +9,10 @@ from sqlalchemy.ext.asyncio import async_engine_from_config
 from sqlmodel import SQLModel  # NEW
 
 from alembic import context
+# Import all your models here
+from app.models import Hero, HeroPublisher
 
 load_dotenv()  # NEW
-
-# DATABASE_URL = os.getenv("DATABASE_URL")  # NEW
-# connection_string = f'{DATABASE_URL}'  # NEW
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
