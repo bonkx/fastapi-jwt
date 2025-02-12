@@ -1,14 +1,14 @@
 from typing import List, Optional
 
-import pytest
 from fastapi_pagination import Page, add_pagination, paginate
 
 from app.models import Hero, HeroCreate, HeroUpdate
 from app.services.hero_service import HeroService
 from app.utils.exceptions import ResponseException
 
+from . import pytest, pytestmark
 
-@pytest.mark.anyio
+
 async def test_add(db_session, payload_hero):
     response = await HeroService(db_session).add(payload_hero)
     data = response
@@ -20,7 +20,6 @@ async def test_add(db_session, payload_hero):
     assert data.hero_publisher_id == payload_hero["hero_publisher_id"]
 
 
-@pytest.mark.anyio
 async def test_get(db_session, payload_hero):
     # MOCK create hero using Service
     created = await HeroService(db_session).add(payload_hero)
@@ -36,7 +35,6 @@ async def test_get(db_session, payload_hero):
     assert data["hero_publisher_id"] == payload_hero["hero_publisher_id"]
 
 
-@pytest.mark.anyio
 async def test_edit(db_session, payload_hero, payload_hero_update):
     # MOCK create hero using Service
     created = await HeroService(db_session).add(payload_hero)
@@ -52,7 +50,6 @@ async def test_edit(db_session, payload_hero, payload_hero_update):
     assert data["hero_publisher_id"] == payload_hero["hero_publisher_id"]
 
 
-@pytest.mark.anyio
 async def test_delete(db_session, payload_hero):
     # MOCK create hero using Service
     created = await HeroService(db_session).add(payload_hero)

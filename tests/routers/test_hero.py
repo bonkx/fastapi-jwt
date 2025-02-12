@@ -2,7 +2,6 @@
 import math
 from random import randint
 
-import pytest
 from faker import Faker
 from fastapi import status
 from sqlmodel import Field, Session, SQLModel, and_, col, or_, select
@@ -10,13 +9,14 @@ from sqlmodel import Field, Session, SQLModel, and_, col, or_, select
 from app.models import Hero, HeroCreate, HeroPublisher, HeroPublisherCreate
 from app.repositories.hero_repo import HeroRepository
 
+from . import pytest, pytestmark
+
 fake = Faker()
 
 
 #############################################
 # Create
 #############################################
-@pytest.mark.anyio
 async def test_create_heroes(client, api_prefix, db_session, payload_hero, payload_hero_publisher):
     # MOCK create hero_publisher using model
     hero_publisher = HeroPublisher(**payload_hero_publisher)
@@ -42,7 +42,6 @@ async def test_create_heroes(client, api_prefix, db_session, payload_hero, paylo
     assert "id" in data
 
 
-@pytest.mark.anyio
 async def test_create_heroes_422_exception(client, api_prefix):
     url = f"{api_prefix}/heroes/"
     response = await client.post(url, json={})
@@ -54,7 +53,6 @@ async def test_create_heroes_422_exception(client, api_prefix):
     assert data["detail"][0]["msg"] == "Field required"
 
 
-@pytest.mark.anyio
 async def test_create_heroes_validation(client, api_prefix, payload_hero):
     payload = payload_hero
 
@@ -90,7 +88,6 @@ async def test_create_heroes_validation(client, api_prefix, payload_hero):
 #############################################
 # Get
 #############################################
-@pytest.mark.anyio
 async def test_get_hero(client, api_prefix, db_session, payload_hero):
     # MOCK create hero using Repo
     payload_hero["hero_publisher_id"] = 1
@@ -112,7 +109,6 @@ async def test_get_hero(client, api_prefix, db_session, payload_hero):
     assert data["hero_publisher_id"] == 1
 
 
-@pytest.mark.anyio
 async def test_get_hero_not_found(client, api_prefix):
     id = 2
 
@@ -125,7 +121,6 @@ async def test_get_hero_not_found(client, api_prefix):
     assert data["detail"] == f"Hero with ID {id} not found"
 
 
-@pytest.mark.anyio
 async def test_get_hero_count(db_session, payload_hero, payload_hero_update):
     # change value for sequence insert
     payload_hero_update["id"] = 2
@@ -149,7 +144,6 @@ async def test_get_hero_count(db_session, payload_hero, payload_hero_update):
 #############################################
 # Update
 #############################################
-@pytest.mark.anyio
 async def test_update_hero(client, api_prefix, db_session, payload_hero, payload_hero_update):
     # MOCK create hero using Repo
     hero = await HeroRepository(db_session).create(payload_hero)
@@ -169,7 +163,6 @@ async def test_update_hero(client, api_prefix, db_session, payload_hero, payload
     assert data["id"] == id
 
 
-@pytest.mark.anyio
 async def test_update_hero_wrong_payload(client, api_prefix, payload_hero_update):
     id = payload_hero_update['id']
 
@@ -195,7 +188,6 @@ async def test_update_hero_wrong_payload(client, api_prefix, payload_hero_update
     }
 
 
-@pytest.mark.anyio
 async def test_update_hero_not_found(client, api_prefix, payload_hero_update):
     id = 2
     url = f"{api_prefix}/heroes/{id}"
@@ -211,7 +203,6 @@ async def test_update_hero_not_found(client, api_prefix, payload_hero_update):
 #############################################
 # Delete
 #############################################
-@pytest.mark.anyio
 async def test_delete_hero(client, api_prefix, db_session, payload_hero):
     # MOCK create hero using Repo
     hero = await HeroRepository(db_session).create(payload_hero)
@@ -233,7 +224,6 @@ async def test_delete_hero(client, api_prefix, db_session, payload_hero):
 #############################################
 # List
 #############################################
-@pytest.mark.anyio
 async def test_read_empty_heroes(client, api_prefix):
     url = f"{api_prefix}/heroes/"
     response = await client.get(url)
@@ -245,7 +235,6 @@ async def test_read_empty_heroes(client, api_prefix):
     assert data["total"] == 0
 
 
-@pytest.mark.anyio
 async def test_read_heroes(client, api_prefix, db_session):
     # name for seaching
     name_for_seaching = ""

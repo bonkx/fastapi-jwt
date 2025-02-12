@@ -1,1 +1,1 @@
-import pytest
+from . import pytest, pytestmark
