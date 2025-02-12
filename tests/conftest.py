@@ -72,7 +72,7 @@ async def client(db_session):
         yield client
 
 
-@pytest.fixture()
+@pytest.fixture(autouse=True)
 def payload_hero_publisher():
     return {
         "id": 1,
@@ -80,7 +80,7 @@ def payload_hero_publisher():
     }
 
 
-@pytest.fixture()
+@pytest.fixture(autouse=True)
 def payload_hero():
     return {
         "id": 1,
@@ -91,7 +91,7 @@ def payload_hero():
     }
 
 
-@pytest.fixture()
+@pytest.fixture(autouse=True)
 def payload_hero_update():
     return {
         "id": 1,
