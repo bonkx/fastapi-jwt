@@ -34,7 +34,7 @@ async def create_data(
     payload: HeroPublisherCreate,
     session: AsyncSession = Depends(get_session),
 ):
-    return await HeroPublisherService(session).add(payload)
+    return await HeroPublisherService(session).create(payload)
 
 
 @router.put("/{id}", response_model=HeroPublisher)

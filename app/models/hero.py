@@ -42,5 +42,5 @@ class HeroUpdate(HeroCreate):
 
 
 class HeroSchema(HeroCreate, BaseModel):
-    hero_publisher_id: Annotated[int, Field(exclude=True)]
+    hero_publisher_id: Annotated[int, Field(exclude=True)]  # exlude/hide field from response schema
     hero_publisher: HeroPublisher | None = None

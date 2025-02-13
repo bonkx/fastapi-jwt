@@ -33,7 +33,7 @@ class HeroService(BaseService):
         obj = await HeroRepository(self.session).get_by_id(id)
         return obj
 
-    async def add(self, obj: HeroCreate) -> Hero:
+    async def create(self, obj: HeroCreate) -> Hero:
         """Add a new data to the repository."""
         # await self.validate_user_data(user_data)
         # await self.check_user_exists(user_data.email)

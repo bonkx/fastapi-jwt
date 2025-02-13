@@ -39,7 +39,7 @@ async def create_hero(
     hero: HeroCreate,
     session: AsyncSession = Depends(get_session),
 ):
-    return await HeroService(session).add(hero)
+    return await HeroService(session).create(hero)
 
 
 @router.put("/{id}", response_model=HeroSchema)

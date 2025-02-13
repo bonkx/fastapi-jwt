@@ -6,8 +6,8 @@ from faker import Faker
 from fastapi import status
 from sqlmodel import Field, Session, SQLModel, and_, col, or_, select
 
-from app.models import Hero, HeroCreate, HeroPublisher, HeroPublisherCreate
-from app.repositories.hero_repo import HeroRepository
+from app.models import Hero, HeroCreate, HeroPublisher
+from app.repositories import HeroPublisherRepository, HeroRepository
 
 from . import pytest, pytestmark
 
@@ -38,7 +38,7 @@ async def test_create_heroes(client, api_prefix, db_session, payload_hero, paylo
     assert data["name"] == "Tony Stark"
     assert data["secret_name"] == "Iron Man"
     assert data["age"] == 40
-    assert data["hero_publisher_id"] == hero_publisher.id
+    assert data["hero_publisher"]["id"] == hero_publisher.id
     assert "id" in data
 
 
@@ -88,9 +88,14 @@ async def test_create_heroes_validation(client, api_prefix, payload_hero):
 #############################################
 # Get
 #############################################
-async def test_get_hero(client, api_prefix, db_session, payload_hero):
+async def test_get_hero(client, api_prefix, db_session, payload_hero, payload_hero_publisher):
+    # MOCK create data using Repo
+    hero_publisher = await HeroPublisherRepository(db_session).create(payload_hero_publisher)
+
+    # set hero_publisher_id in payload
+    payload_hero["hero_publisher_id"] = hero_publisher.id
+
     # MOCK create hero using Repo
-    payload_hero["hero_publisher_id"] = 1
     hero = await HeroRepository(db_session).create(payload_hero)
     print(hero)
 
@@ -106,7 +111,7 @@ async def test_get_hero(client, api_prefix, db_session, payload_hero):
     assert data["secret_name"] == "Iron Man"
     assert data["age"] == 40
     assert data["id"] == id
-    assert data["hero_publisher_id"] == 1
+    assert data["hero_publisher"]["id"] == 1
 
 
 async def test_get_hero_not_found(client, api_prefix):

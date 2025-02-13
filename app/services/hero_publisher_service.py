@@ -22,7 +22,7 @@ class HeroPublisherService(BaseService):
         obj = await HeroPublisherRepository(self.session).get_by_id(id)
         return obj
 
-    async def add(self, obj: HeroPublisherCreate) -> HeroPublisher:
+    async def create(self, obj: HeroPublisherCreate) -> HeroPublisher:
         """Add a new data to the repository."""
         return await HeroPublisherRepository(self.session).create(obj)
 
