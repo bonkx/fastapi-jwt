@@ -15,7 +15,7 @@ DATABASE_URL = 'sqlite+aiosqlite:///:memory:'
 
 @pytest.fixture(autouse=True)
 def sessionmanager():
-    return DatabaseSessionManager(DATABASE_URL, {"echo": settings.DEBUG})
+    return DatabaseSessionManager(DATABASE_URL, {"echo": False})
 
 
 @pytest.fixture(autouse=True)
@@ -80,6 +80,14 @@ def payload_hero_publisher():
     return {
         "id": 1,
         "name": "Marvel Comics",
+    }
+
+
+@pytest.fixture(autouse=True)
+def payload_hero_publisher_update():
+    return {
+        "id": 1,
+        "name": "Marvel Comics Update",
     }
 
 
