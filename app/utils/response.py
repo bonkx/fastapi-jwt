@@ -8,8 +8,8 @@
 
 # class IResponseBase(BaseModel, Generic[T]):
 #     detail: str = "Request has been processed successfully"
-#     meta: dict | Any | None = {}
 #     result: T | None = None
+#     meta: dict | Any | None = {}
 
 
 # class IGetResponseBase(IResponseBase[DataType], Generic[DataType]):
@@ -39,10 +39,14 @@
 #     | IDeleteResponseBase[DataType]
 #     | IPostResponseBase[DataType]
 # ):
-#     # res = {"result": data}
+#     res = {
+#         "detail": detail,
+#         "meta": meta,
+#         "result": data,
+#     }
 #     # if detail:
 #     #     res["detail"] = detail
 #     # if meta:
 #     #     res["meta"] = meta
 
-#     return {"data": data, "detail": detail, "meta": meta}
+#     return res

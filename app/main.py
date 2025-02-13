@@ -1,7 +1,7 @@
 # Initializes the FastAPI application.
 
 from contextlib import asynccontextmanager
-from typing import Annotated
+from typing import Annotated, Any
 
 from fastapi import Depends, FastAPI
 from fastapi_pagination import add_pagination
