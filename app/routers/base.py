@@ -9,7 +9,7 @@ def register_all_routers(app: FastAPI):
 
     # Include all routers in here
     app.include_router(users_route.router, prefix=f"{settings.API_PREFIX}/users", tags=["users"])
-    app.include_router(hero_publisher_route.router, prefix=f"{settings.API_PREFIX}/hero_publishers", tags=["hero_publishers"])
+    app.include_router(hero_publisher_route.router, prefix=f"{settings.API_PREFIX}/hero-publishers", tags=["hero_publishers"])
     app.include_router(hero_route.router, prefix=f"{settings.API_PREFIX}/heroes", tags=["heroes"])
     # app.include_router(
     #     admin.router,

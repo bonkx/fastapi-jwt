@@ -75,6 +75,11 @@ def event_loop():
     loop.close()
 
 
+@pytest.fixture(scope="class")
+def abc():
+    return "abc"
+
+
 @pytest.fixture(autouse=True)
 def payload_hero_publisher():
     return {

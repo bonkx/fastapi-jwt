@@ -257,18 +257,10 @@ async def test_read_heroes(client, api_prefix, db_session):
 
     await db_session.commit()
 
-    # Test Searching
-    query_params = {"page": page, "size": size, "search": name_for_seaching}
     url = f"{api_prefix}/heroes/"
-    response = await client.get(url, params=query_params)
-    data = response.json()
 
-    assert response.status_code == status.HTTP_200_OK
-    assert data["results"][0]["name"] == name_for_seaching
-
-    # Sorting ASC
-    query_params = {"page": page, "size": size, "sorting": "id:asc"}
-    url = f"{api_prefix}/heroes/"
+    # Test List
+    query_params = {"page": page, "size": size}
     response = await client.get(url, params=query_params)
     data = response.json()
 
@@ -278,11 +270,26 @@ async def test_read_heroes(client, api_prefix, db_session):
     assert data["page"] == page
     assert data["size"] == size
     assert data["pages"] == total_pages
+
+    # Test Searching
+    query_params = {"page": page, "size": size, "search": name_for_seaching}
+    response = await client.get(url, params=query_params)
+    data = response.json()
+
+    assert response.status_code == status.HTTP_200_OK
+    assert data["results"][0]["name"] == name_for_seaching
+
+    # Test Sorting ASC
+    query_params = {"page": page, "size": size, "sorting": "id:asc"}
+    response = await client.get(url, params=query_params)
+    data = response.json()
+
+    assert response.status_code == status.HTTP_200_OK
+    assert data["results"] != []
     assert data["results"][0]["id"] == 1
 
-    # Sorting DESC
+    # Test Sorting DESC
     query_params["sorting"] = "id:desc"
-    url = f"{api_prefix}/heroes/"
     response = await client.get(url, params=query_params)
     data = response.json()
 
@@ -290,9 +297,8 @@ async def test_read_heroes(client, api_prefix, db_session):
     assert data["results"] != []
     assert data["results"][0]["id"] == 21
 
-    # Sorting Exception
+    # Test Sorting Exception
     query_params["sorting"] = "test:desc"
-    url = f"{api_prefix}/heroes/"
     response = await client.get(url, params=query_params)
     data = response.json()
     print(data)
