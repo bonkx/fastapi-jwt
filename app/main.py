@@ -54,7 +54,7 @@ register_all_routers(app)
 # Pagination
 add_pagination(app)  # important! add pagination to your app
 # set globally pagination Items transformer
-set_items_transformer(lambda items: [item.model_dump() for item in items])
+# set_items_transformer(lambda items: [item.model_dump() for item in items])
 
 
 @app.get("/", include_in_schema=False)

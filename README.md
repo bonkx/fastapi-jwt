@@ -79,6 +79,7 @@ $ alembic upgrade head
 
 - [x] FastAPI Log file
 - [x] FastAPI Swagger
+- [x] Testing with PyTest
 - [x] FastAPI Clean Architecture Pattern
   - [x] Routers (handler)
   - [x] Service (usecase - logic process)

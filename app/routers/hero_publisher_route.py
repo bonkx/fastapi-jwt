@@ -4,7 +4,8 @@ from fastapi import APIRouter, Depends, FastAPI, Query, status
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 from ..core.database import get_session
-from ..models import HeroPublisher, HeroPublisherCreate, HeroPublisherUpdate
+from ..models import (HeroPublisher, HeroPublisherCreate, HeroPublisherSchema,
+                      HeroPublisherUpdate)
 from ..services.hero_publisher_service import HeroPublisherService
 from ..utils.pagination import CustomPage
 
