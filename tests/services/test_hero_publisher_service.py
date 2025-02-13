@@ -3,7 +3,7 @@ from typing import List, Optional
 from fastapi_pagination import Page, add_pagination, paginate
 
 from app.models import HeroPublisher, HeroPublisherCreate, HeroPublisherUpdate
-from app.services.hero_publisher_service import HeroPublisherService
+from app.services import HeroPublisherService
 from app.utils.exceptions import ResponseException
 
 from . import pytest, pytestmark

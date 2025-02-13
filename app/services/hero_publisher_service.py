@@ -1,7 +1,7 @@
 from typing import List, Optional
 
 from ..models import HeroPublisher, HeroPublisherCreate, HeroPublisherUpdate
-from ..repositories.hero_publisher_repo import HeroPublisherRepository
+from ..repositories import HeroPublisherRepository
 from .base import BaseService
 
 # Serivce / Use Case

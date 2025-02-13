@@ -5,7 +5,7 @@ from typing import Any, Callable, Dict, Optional
 from fastapi import FastAPI, HTTPException, status
 from fastapi.requests import Request
 from fastapi.responses import JSONResponse
-from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy.exc import OperationalError, SQLAlchemyError
 
 
 class ResponseException(HTTPException):
@@ -234,13 +234,13 @@ def register_all_errors(app: FastAPI):
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
         )
 
-    @app.exception_handler(SQLAlchemyError)
-    async def database__error(request, exc):
-        print(str(exc))
-        return JSONResponse(
-            content={
-                "detail": "Oops! Something went wrong",
-                "error_code": "server_error",
-            },
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-        )
+    # @app.exception_handler(SQLAlchemyError)
+    # async def database__error(request, exc):
+    #     print(str(exc))
+    #     return JSONResponse(
+    #         content={
+    #             "detail": "Oops! Something went wrong",
+    #             "error_code": "server_error",
+    #         },
+    #         status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+    #     )

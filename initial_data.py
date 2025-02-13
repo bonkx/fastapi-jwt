@@ -11,8 +11,8 @@ from sqlmodel.sql.expression import SelectOfScalar
 
 from app.core.config import settings
 from app.core.database import sessionmanager
-from app.models import Hero, HeroCreate, HeroPublisher, HeroPublisherCreate
-from app.repositories.base import BaseRepository
+from app.models import Hero, HeroCreate, HeroPublisher
+from app.repositories import BaseRepository
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 # Get current directory

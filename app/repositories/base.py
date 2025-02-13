@@ -2,6 +2,7 @@ import uuid
 from typing import Any, Dict, Generic, List, Sequence, Type, TypeVar
 
 from fastapi_pagination.ext.async_sqlmodel import paginate
+from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.sql.expression import Executable
 from sqlmodel import func, select
 from sqlmodel.sql.expression import SelectOfScalar
