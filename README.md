@@ -1,6 +1,6 @@
 # FastAPI App
 
-FastAPI Rest API with [SQLModel](https://sqlmodel.tiangolo.com/) (AsyncSession) and Uvicorn
+FastAPI Rest API with [SQLModel](https://sqlmodel.tiangolo.com/) (AsyncSession), JWT and Uvicorn
 
 ## Clean Architecture Pattern
 
@@ -18,14 +18,14 @@ $ cd repo
 # copy and edit env file
 $ cp .env.example .env
 
-# seeds data to database like status
-$ db seeds or migrate
+# migrate db:
+$ alembic upgrade head
 
-# build docker
-$ make build
+# seeds data to database
+$ python initial_data.py
 
-# start docker
-$ make run
+# run the app
+$ python main.py
 ```
 
 ## How to Setup async Alembic SQLModel
@@ -112,7 +112,7 @@ $ alembic upgrade head
   - [x] Create Data
   - [x] Edit Data
   - [x] Delete Data
-- [] Preload Model (Associations Struct)
+- [x] Nested Model Schema
 - [] Open API with API KEY middleware
 - [] Upload Files
 - [] Remove Files
@@ -120,7 +120,7 @@ $ alembic upgrade head
 - [] Create thumbnail from videos with ffmpeg
 - [] Upload Images and Compress Image with libvips
 - [] Create thumbnail from image
-- [] Image Processing with [libvips](https://www.libvips.org/)
+- [] Image Processing
 
 ---
 
