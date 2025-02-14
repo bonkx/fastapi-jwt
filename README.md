@@ -85,8 +85,8 @@ $ alembic upgrade head
   - [x] Service (usecase - logic process)
   - [x] Repository (process to DB)
   - [x] Error Exception
-- [] Auth
-  - [] Register, Send verification Email
+- [ ] Auth
+  - [ ] Register, Send verification Email
   - [] Send Email with [Fastapi-mail](https://sabuhish.github.io/fastapi-mail/)
   - [] Open Link Verification Email
   - [] Resend Verification Email Code
