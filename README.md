@@ -87,25 +87,25 @@ $ alembic upgrade head
   - [x] Error Exception
 - [ ] Auth
   - [ ] Register, Send verification Email
-  - [] Send Email with [Fastapi-mail](https://sabuhish.github.io/fastapi-mail/)
-  - [] Open Link Verification Email
-  - [] Resend Verification Email Code
-  - [] Login
-  - [] JWT Auth Middleware + Redis
-  - [] Refresh Token
-  - [] Forgot Password, send email OTP
-  - [] Forgot Password Verify OTP
-  - [] Reset Password
-  - [] Logout
-- [] Account
-  - [] Get Profile
-  - [] Update Profile
-  - [] Update Photo Profile + thumbnail
-  - [] Upload File, upload image(compressed)
-  - [] Change Password
-  - [] Deletion Account with OTP
-  - [] Recover deleted account (Admin role)
-  - [] User Activity with interval (last login at, ip address in middleware)
+  - [ ] Send Email with [Fastapi-mail](https://sabuhish.github.io/fastapi-mail/)
+  - [ ] Open Link Verification Email
+  - [ ] Resend Verification Email Code
+  - [ ] Login
+  - [ ] JWT Auth Middleware + Redis
+  - [ ] Refresh Token
+  - [ ] Forgot Password, send email OTP
+  - [ ] Forgot Password Verify OTP
+  - [ ] Reset Password
+  - [ ] Logout
+- [ ] Account
+  - [ ] Get Profile
+  - [ ] Update Profile
+  - [ ] Update Photo Profile + thumbnail
+  - [ ] Upload File, upload image(compressed)
+  - [ ] Change Password
+  - [ ] Deletion Account with OTP
+  - [ ] Recover deleted account (Admin role)
+  - [ ] User Activity with interval (last login at, ip address in middleware)
 - [x] CRUD
   - [x] Pagination with custom Paginate [FastAPI Pagination](https://uriyyo-fastapi-pagination.netlify.app/)
   - [x] Sort + Search function in List Data
@@ -113,14 +113,14 @@ $ alembic upgrade head
   - [x] Edit Data
   - [x] Delete Data
 - [x] Nested Model Schema
-- [] Open API with API KEY middleware
-- [] Upload Files
-- [] Remove Files
-- [] Upload Videos
-- [] Create thumbnail from videos with ffmpeg
-- [] Upload Images and Compress Image with libvips
-- [] Create thumbnail from image
-- [] Image Processing
+- [ ] Open API with API KEY middleware
+- [ ] Upload Files
+- [ ] Remove Files
+- [ ] Upload Videos
+- [ ] Create thumbnail from videos with ffmpeg
+- [ ] Upload Images and Compress Image with libvips
+- [ ] Create thumbnail from image
+- [ ] Image Processing
 
 ---
 
