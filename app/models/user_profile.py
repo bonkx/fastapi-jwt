@@ -20,14 +20,14 @@ class UserProfile(BaseModel, table=True):
     role: str | None = None
     birthday: date | None = None
 
-    user_id: int | None = Field(default=None, foreign_key="user.id", ondelete="CASCADE")
-    user: User | None = Relationship(
-        back_populates="profile", cascade_delete=True,
+    user_id: int | None = Field(default=None, foreign_key="users.id", ondelete="CASCADE")
+    user: Optional["User"] | None = Relationship(
+        back_populates="profile",
         sa_relationship_kwargs={"lazy": "selectin"}
     )
 
     status_id: int | None = Field(default=None, foreign_key="status.id", ondelete="CASCADE")
     status: Status | None = Relationship(
-        back_populates="profile", cascade_delete=True,
+        back_populates="user_profiles",
         sa_relationship_kwargs={"lazy": "selectin"}
     )

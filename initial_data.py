@@ -1,6 +1,7 @@
 import asyncio
 import json
 import os
+from datetime import datetime
 from pathlib import Path
 from random import randint
 
@@ -11,12 +12,33 @@ from sqlmodel.sql.expression import SelectOfScalar
 
 from app.core.config import settings
 from app.core.database import sessionmanager
-from app.models import Hero, HeroCreate, HeroPublisher
-from app.repositories import BaseRepository
+from app.models import (Hero, HeroCreate, HeroPublisher, Status, User,
+                        UserProfile)
+from app.repositories.base import BaseRepository
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 # Get current directory
 CUR_DIR = Path(__file__).parent.absolute()
+
+
+async def populate_status_data():
+    print("------ START POPULATE_STATUS_DATA ------")
+
+    async with sessionmanager.session() as db_session:
+        # check count data status
+        stmt = select(Status)
+        base_repo = BaseRepository(db_session)
+        total = await base_repo.get_count(stmt)
+        # print(total)
+        if total <= 0:
+            res_add_all = await base_repo.add_all([
+                Status(**{"name": "Active"}),
+                Status(**{"name": "In-Active"}),
+                Status(**{"name": "Pending"}),
+                Status(**{"name": "Suspended"}),
+            ])
+
+    print("------ END POPULATE_STATUS_DATA ------")
 
 
 async def populate_hero_data():
@@ -79,5 +101,44 @@ async def populate_hero_data():
 
     print("------ END POPULATE_HERO_DATA ------")
 
+
+async def populate_admin_super_user():
+    print("------ START POPULATE_ADMIN_SUPER_USER ------")
+
+    async with sessionmanager.session() as db_session:
+        # check count admin super user
+        stmt = select(User).where(User.username == "admin")
+        base_repo = BaseRepository(db_session)
+        total = await base_repo.get_count(stmt)
+        # print(total)
+        if total <= 0:
+            # create User
+            res_user = await base_repo.add_one(
+                User(**{
+                    "first_name": "Admin",
+                    "last_name": "System",
+                    "username": "admin",
+                    "email": "admin@admin.com",
+                    "password": "password",
+                    "is_verified": True,
+                    "is_superuser": True,
+                    "is_staff": True,
+                    "verified_at": datetime.now(),
+                }),
+            )
+
+            # create UserProfile
+            res_user_profile = await base_repo.add_one(
+                UserProfile(**{
+                    "role": "Admin",
+                    "user_id": res_user.id,
+                    "status_id": 1,  # Activce
+                })
+            )
+
+    print("------ END POPULATE_ADMIN_SUPER_USER ------")
+
 if __name__ == "__main__":
     asyncio.run(populate_hero_data())
+    asyncio.run(populate_status_data())
+    asyncio.run(populate_admin_super_user())

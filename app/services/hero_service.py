@@ -3,7 +3,7 @@ from typing import List, Optional
 from fastapi import HTTPException, status
 
 from ..models import Hero, HeroCreate, HeroUpdate
-from ..repositories import HeroRepository
+from ..repositories.hero_repo import HeroRepository
 from ..utils.exceptions import ResponseException
 from .base import BaseService
 

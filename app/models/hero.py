@@ -18,7 +18,7 @@ class Hero(BaseModel, table=True):
 
     hero_publisher_id: int | None = Field(default=None, foreign_key="hero_publisher.id", ondelete="CASCADE")
     hero_publisher: HeroPublisher | None = Relationship(
-        back_populates="heroes", cascade_delete=True,
+        back_populates="heroes",
         sa_relationship_kwargs={"lazy": "selectin"}
     )
 

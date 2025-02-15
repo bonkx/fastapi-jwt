@@ -7,7 +7,8 @@ from fastapi import status
 from sqlmodel import Field, Session, SQLModel, and_, col, or_, select
 
 from app.models import Hero, HeroCreate, HeroPublisher
-from app.repositories import HeroPublisherRepository, HeroRepository
+from app.repositories.hero_publisher_repo import HeroPublisherRepository
+from app.repositories.hero_repo import HeroRepository
 
 from . import pytest, pytestmark
 

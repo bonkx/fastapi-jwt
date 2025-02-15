@@ -4,8 +4,9 @@ from sqlmodel import Field, Session, SQLModel, and_, col, or_, select
 
 from app.core.database import DatabaseSessionManager
 from app.models import Hero
-from app.repositories import HeroPublisherRepository, HeroRepository
-from app.services import HeroService
+from app.repositories.hero_publisher_repo import HeroPublisherRepository
+from app.repositories.hero_repo import HeroRepository
+from app.services.hero_service import HeroService
 from app.utils.exceptions import ResponseException
 
 from . import pytest, pytestmark

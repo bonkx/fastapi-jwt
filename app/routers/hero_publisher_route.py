@@ -6,7 +6,7 @@ from sqlmodel.ext.asyncio.session import AsyncSession
 from ..core.database import get_session
 from ..models import (HeroPublisher, HeroPublisherCreate, HeroPublisherSchema,
                       HeroPublisherUpdate)
-from ..services import HeroPublisherService
+from ..services.hero_publisher_service import HeroPublisherService
 from ..utils.pagination import CustomPage
 
 router = APIRouter()
