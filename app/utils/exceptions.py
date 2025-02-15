@@ -58,6 +58,12 @@ class UserAlreadyExists(BaseException):
     pass
 
 
+class UsernameAlreadyExists(BaseException):
+    """User has provided an email for a user who exists during sign up."""
+
+    pass
+
+
 class InvalidCredentials(BaseException):
     """User has provided wrong email or password during log in."""
 
@@ -102,10 +108,22 @@ def register_all_errors(app: FastAPI):
     app.add_exception_handler(
         UserAlreadyExists,
         create_exception_handler(
-            status_code=status.HTTP_403_FORBIDDEN,
+            status_code=status.HTTP_409_CONFLICT,
             initial_detail={
-                "detail": "User with email already exists",
+                "detail": "User with the email already exists",
+                "resolution": "Try again with another Email",
                 # "error_code": "user_exists",
+            },
+        ),
+    )
+
+    app.add_exception_handler(
+        UsernameAlreadyExists,
+        create_exception_handler(
+            status_code=status.HTTP_409_CONFLICT,
+            initial_detail={
+                "detail": "User with the username already exists",
+                "resolution": "Try again with another Username"
             },
         ),
     )

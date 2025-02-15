@@ -13,7 +13,7 @@ router = APIRouter()
 
 
 @router.get("/", response_model=CustomPage[HeroPublisher])
-async def read_data(
+async def read_hero_publishers(
     search: Optional[str] = Query(None, description="Search by name or secret_name", ),
     sorting: Optional[str] = Query(None, description="Sort by Model field e.g. id:desc or name:asc", ),
     session: AsyncSession = Depends(get_session),
@@ -22,7 +22,7 @@ async def read_data(
 
 
 @router.get("/{id}", response_model=HeroPublisher)
-async def get_data(
+async def get_hero_publisher(
     id: int,
     session: AsyncSession = Depends(get_session),
 ):
@@ -30,7 +30,7 @@ async def get_data(
 
 
 @router.post("/", response_model=HeroPublisher, status_code=status.HTTP_201_CREATED)
-async def create_data(
+async def create_hero_publisher(
     payload: HeroPublisherCreate,
     session: AsyncSession = Depends(get_session),
 ):
@@ -38,7 +38,7 @@ async def create_data(
 
 
 @router.put("/{id}", response_model=HeroPublisher)
-async def update_data(
+async def update_hero_publisher(
     id: int,
     payload: HeroPublisherUpdate,
     session: AsyncSession = Depends(get_session),
@@ -47,7 +47,7 @@ async def update_data(
 
 
 @router.delete("/{id}", status_code=status.HTTP_204_NO_CONTENT)
-async def delete_data(
+async def delete_hero_publisher(
     id: int,
     session: AsyncSession = Depends(get_session),
 ):

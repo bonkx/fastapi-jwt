@@ -69,5 +69,5 @@ class HeroPublisherRepository(BaseRepository):
 
     async def delete(self, id: int) -> None:
         """Delete data."""
-        hero_db = await self.get_by_id(id)
-        return await self.delete_one(hero_db)
+        data_db = await self.get_by_id(id)
+        return await self.delete_one(data_db)

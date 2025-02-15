@@ -11,15 +11,6 @@ from .base import BaseService
 
 
 class HeroService(BaseService):
-    # async def validate_user_data(self, user_data: UserCreate) -> None:
-    #     if not user_data.email or not user_data.password:
-    #         raise ValueError("Email and password are required.")
-
-    # async def check_user_exists(self, email: str) -> None:
-    #     existing_user = await self.user_repository.get_user_by_email(email)
-    #     if existing_user:
-    #         raise ValueError("User already exists.")
-
     async def list(
         self,
         search: Optional[str] = None,
@@ -35,8 +26,6 @@ class HeroService(BaseService):
 
     async def create(self, obj: HeroCreate) -> Hero:
         """Add a new data to the repository."""
-        # await self.validate_user_data(user_data)
-        # await self.check_user_exists(user_data.email)
         return await HeroRepository(self.session).create(obj)
 
     async def edit(self, id: int, obj: HeroUpdate) -> Hero:

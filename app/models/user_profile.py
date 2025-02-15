@@ -21,13 +21,36 @@ class UserProfile(BaseModel, table=True):
     birthday: date | None = None
 
     user_id: int | None = Field(default=None, foreign_key="users.id", ondelete="CASCADE")
-    user: Optional["User"] | None = Relationship(
+    user: "User" = Relationship(
         back_populates="profile",
         sa_relationship_kwargs={"lazy": "selectin"}
     )
 
     status_id: int | None = Field(default=None, foreign_key="status.id", ondelete="CASCADE")
-    status: Status | None = Relationship(
+    status: Status = Relationship(
         back_populates="user_profiles",
         sa_relationship_kwargs={"lazy": "selectin"}
     )
+
+
+class UserProfileCreate(SQLModel):
+    phone: str | None = None
+    photo: str | None = None
+    role: str | None = None
+    birthday: date | None = None
+
+    user_id: int
+    status_id: int
+
+
+@optional()
+class UserProfileUpdate(SQLModel):
+    phone: str | None = None
+    photo: str | None = None
+    birthday: date | None = None
+
+
+class UserProfileSchema(UserProfileCreate, BaseModel):
+    user_id: int | None = Field(exclude=True)
+    status_id: int | None = Field(exclude=True)
+    status: Status | None = None

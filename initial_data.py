@@ -12,6 +12,7 @@ from sqlmodel.sql.expression import SelectOfScalar
 
 from app.core.config import settings
 from app.core.database import sessionmanager
+from app.core.security import generate_passwd_hash, verify_password
 from app.models import (Hero, HeroCreate, HeroPublisher, Status, User,
                         UserProfile)
 from app.repositories.base import BaseRepository
@@ -111,15 +112,18 @@ async def populate_admin_super_user():
         base_repo = BaseRepository(db_session)
         total = await base_repo.get_count(stmt)
         # print(total)
+        password = "password"
+
         if total <= 0:
             # create User
+            hashed_pasword = generate_passwd_hash(password)
             res_user = await base_repo.add_one(
                 User(**{
                     "first_name": "Admin",
                     "last_name": "System",
                     "username": "admin",
                     "email": "admin@admin.com",
-                    "password": "password",
+                    "password": hashed_pasword,
                     "is_verified": True,
                     "is_superuser": True,
                     "is_staff": True,
@@ -135,6 +139,8 @@ async def populate_admin_super_user():
                     "status_id": 1,  # Activce
                 })
             )
+    # verify_pass = verify_password(password, "$2b$12$/fs0sJy3dQmfGCRaCTv3zeenB.kCWuIlpmW27zMu0AabwUrra7Nxq")
+    # print(verify_pass)
 
     print("------ END POPULATE_ADMIN_SUPER_USER ------")
 

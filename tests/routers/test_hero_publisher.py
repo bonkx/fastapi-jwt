@@ -1,6 +1,5 @@
 import math
 from random import randint
-from unittest import TestCase
 
 from faker import Faker
 from fastapi import status

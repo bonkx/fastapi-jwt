@@ -1,8 +1,8 @@
 """add status, user, user_profile
 
-Revision ID: fa724af7b405
+Revision ID: 72cd5e75e2ae
 Revises: 83cf0f0b3c2a
-Create Date: 2025-02-15 16:07:32.098387
+Create Date: 2025-02-15 20:02:25.518842
 
 """
 from typing import Sequence, Union
@@ -13,7 +13,7 @@ import sqlmodel             # NEW
 
 
 # revision identifiers, used by Alembic.
-revision: str = 'fa724af7b405'
+revision: str = '72cd5e75e2ae'
 down_revision: Union[str, None] = '83cf0f0b3c2a'
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None

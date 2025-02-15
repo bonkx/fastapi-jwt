@@ -116,3 +116,14 @@ def payload_hero_update():
         "age": 30,
         "hero_publisher_id": 1,
     }
+
+
+@pytest.fixture(autouse=True)
+def payload_user_register():
+    return {
+        "first_name": "John",
+        "last_name": "Doe",
+        "username": "johndoe",
+        "email": "johndoe123@fastapi.com",
+        "password": "testpass123",
+    }

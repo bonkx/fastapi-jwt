@@ -1,17 +1,44 @@
 # # Defines functions for authentication.
 
-# from datetime import datetime, timedelta
-# from typing import Any
+from datetime import datetime, timedelta
+from typing import Any
 
-# import bcrypt
-# import jwt
+import bcrypt
+import jwt
+from passlib.context import CryptContext
+
+from .config import settings
+
 # from cryptography.fernet import Fernet
 
-# from .config import settings
 
 # fernet = Fernet(str.encode(settings.ENCRYPT_KEY))
 
-# JWT_ALGORITHM = "HS256"
+passwd_context = CryptContext(schemes=["bcrypt"])
+
+
+# def generate_passwd_hash(password: str) -> str:
+#     hash = passwd_context.hash(password)
+
+#     return hash
+
+
+# def verify_password(password: str, hash: str) -> bool:
+#     return passwd_context.verify(password, hash)
+
+# Hash a password using bcrypt
+def generate_passwd_hash(password: str) -> str:
+    pwd_bytes = password.encode('utf-8')
+    salt = bcrypt.gensalt()
+    hashed_password = bcrypt.hashpw(password=pwd_bytes, salt=salt)
+    return hashed_password
+
+
+# Check if the provided password matches the stored password (hashed)
+def verify_password(plain_password: str, hashed_password: str) -> bool:
+    password_byte_enc = plain_password.encode('utf-8')
+    hashed_password_byte_enc = hashed_password.encode('utf-8')
+    return bcrypt.checkpw(password=password_byte_enc, hashed_password=hashed_password_byte_enc)
 
 
 # def create_access_token(subject: str | Any, expires_delta: timedelta = None) -> str:
