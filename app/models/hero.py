@@ -13,12 +13,12 @@ class Hero(BaseModel, table=True):
     __tablename__ = 'hero'
 
     name: str = Field(index=True)
-    age: int | None = Field(default=None, index=True)
-    secret_name: str
+    age: int | None
+    secret_name: str = Field(default=None, index=True)
 
     hero_publisher_id: int | None = Field(default=None, foreign_key="hero_publisher.id", ondelete="CASCADE")
     hero_publisher: HeroPublisher | None = Relationship(
-        back_populates="heroes",
+        back_populates="heroes", cascade_delete=True,
         sa_relationship_kwargs={"lazy": "selectin"}
     )
 
