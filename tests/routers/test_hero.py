@@ -6,7 +6,7 @@ from faker import Faker
 from fastapi import status
 from sqlmodel import Field, Session, SQLModel, and_, col, or_, select
 
-from app.models import Hero, HeroCreate, HeroPublisher
+from app.models import Hero, HeroCreate, HeroPublisher, HeroPublisherCreate
 from app.repositories.hero_publisher_repo import HeroPublisherRepository
 from app.repositories.hero_repo import HeroRepository
 
@@ -91,7 +91,7 @@ async def test_create_heroes_validation(client, api_prefix, payload_hero):
 #############################################
 async def test_get_hero(client, api_prefix, db_session, payload_hero, payload_hero_publisher):
     # MOCK create data using Repo
-    hero_publisher = await HeroPublisherRepository(db_session).create(payload_hero_publisher)
+    hero_publisher = await HeroPublisherRepository(db_session).create(HeroPublisherCreate(**payload_hero_publisher))
 
     # set hero_publisher_id in payload
     payload_hero["hero_publisher_id"] = hero_publisher.id
@@ -152,7 +152,7 @@ async def test_get_hero_count(db_session, payload_hero, payload_hero_update):
 #############################################
 async def test_update_hero(client, api_prefix, db_session, payload_hero, payload_hero_update):
     # MOCK create hero using Repo
-    hero = await HeroRepository(db_session).create(payload_hero)
+    hero = await HeroRepository(db_session).create(HeroCreate(**payload_hero))
     print(hero)
 
     id = hero.id
@@ -211,7 +211,7 @@ async def test_update_hero_not_found(client, api_prefix, payload_hero_update):
 #############################################
 async def test_delete_hero(client, api_prefix, db_session, payload_hero):
     # MOCK create hero using Repo
-    hero = await HeroRepository(db_session).create(payload_hero)
+    hero = await HeroRepository(db_session).create(HeroCreate(**payload_hero))
     print(hero)
 
     id = hero.id

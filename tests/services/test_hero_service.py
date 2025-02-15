@@ -10,7 +10,7 @@ from . import pytest, pytestmark
 
 
 async def test_add(db_session, payload_hero):
-    response = await HeroService(db_session).create(payload_hero)
+    response = await HeroService(db_session).create(HeroCreate(**payload_hero))
     data = response
     print(data)
 
@@ -22,7 +22,7 @@ async def test_add(db_session, payload_hero):
 
 async def test_get(db_session, payload_hero):
     # MOCK create hero using Service
-    created = await HeroService(db_session).create(payload_hero)
+    created = await HeroService(db_session).create(HeroCreate(**payload_hero))
 
     response = await HeroService(db_session).get_by_id(id=created.id)
     data = response
@@ -37,7 +37,7 @@ async def test_get(db_session, payload_hero):
 
 async def test_edit(db_session, payload_hero, payload_hero_update):
     # MOCK create hero using Service
-    created = await HeroService(db_session).create(payload_hero)
+    created = await HeroService(db_session).create(HeroCreate(**payload_hero))
 
     response = await HeroService(db_session).edit(id=created.id, obj=HeroUpdate(**payload_hero_update))
     data = response
@@ -52,7 +52,7 @@ async def test_edit(db_session, payload_hero, payload_hero_update):
 
 async def test_delete(db_session, payload_hero):
     # MOCK create hero using Service
-    created = await HeroService(db_session).create(payload_hero)
+    created = await HeroService(db_session).create(HeroCreate(**payload_hero))
 
     await HeroService(db_session).delete(id=created.id)
 

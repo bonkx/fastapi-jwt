@@ -10,7 +10,7 @@ from . import pytest, pytestmark
 
 
 async def test_add(db_session, payload_hero_publisher):
-    response = await HeroPublisherService(db_session).create(payload_hero_publisher)
+    response = await HeroPublisherService(db_session).create(HeroPublisherCreate(**payload_hero_publisher))
     data = response
     print(data)
 
@@ -20,7 +20,7 @@ async def test_add(db_session, payload_hero_publisher):
 
 async def test_get(db_session, payload_hero_publisher):
     # MOCK create data using Service
-    created = await HeroPublisherService(db_session).create(payload_hero_publisher)
+    created = await HeroPublisherService(db_session).create(HeroPublisherCreate(**payload_hero_publisher))
 
     response = await HeroPublisherService(db_session).get_by_id(id=created.id)
     data = response
@@ -32,7 +32,7 @@ async def test_get(db_session, payload_hero_publisher):
 
 async def test_edit(db_session, payload_hero_publisher, payload_hero_publisher_update):
     # MOCK create data using Service
-    created = await HeroPublisherService(db_session).create(payload_hero_publisher)
+    created = await HeroPublisherService(db_session).create(HeroPublisherCreate(**payload_hero_publisher))
 
     response = await HeroPublisherService(db_session).edit(id=created.id, obj=HeroPublisherUpdate(**payload_hero_publisher_update))
     data = response
@@ -44,7 +44,7 @@ async def test_edit(db_session, payload_hero_publisher, payload_hero_publisher_u
 
 async def test_delete(db_session, payload_hero_publisher):
     # MOCK create data using Service
-    created = await HeroPublisherService(db_session).create(payload_hero_publisher)
+    created = await HeroPublisherService(db_session).create(HeroPublisherCreate(**payload_hero_publisher))
 
     # delete data
     await HeroPublisherService(db_session).delete(id=created.id)

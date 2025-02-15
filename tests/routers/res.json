@@ -1,10 +1,11 @@
 {
   "detail": [
     {
-      "type": "string_type",
-      "loc": ["body", "name"],
-      "msg": "Input should be a valid string",
-      "input": 1
+      "type": "string_too_short",
+      "loc": ["body", "password"],
+      "msg": "String should have at least 4 characters",
+      "input": "123",
+      "ctx": { "min_length": 4 }
     }
   ]
 }

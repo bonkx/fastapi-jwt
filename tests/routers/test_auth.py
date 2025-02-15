@@ -20,7 +20,7 @@ class TestAuthUser:
         self.payload_user_register = payload_user_register
         self.url = f"{self.api_prefix}/auth/"
 
-    async def test_user_sign_up(self):
+    async def test_user_register(self):
         url = f"{self.url}register"
         response = await self.client.post(url, json=self.payload_user_register)
         data = response.json()
@@ -33,3 +33,31 @@ class TestAuthUser:
         assert "id" in data["user"]
         assert data["user"]["username"] == "johndoe"
         assert data["user"]["email"] == "johndoe123@fastapi.com"
+
+    async def test_user_register_422(self):
+        url = f"{self.url}register"
+        response = await self.client.post(url, json={})
+        data = response.json()
+        print(data)
+
+        assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
+
+    async def test_user_register_password_length(self):
+        self.payload_user_register["password"] = "123"
+        url = f"{self.url}register"
+        response = await self.client.post(url, json=self.payload_user_register)
+        data = response.json()
+        print(data)
+
+        assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
+        assert data == {
+            "detail": [
+                {
+                    "type": "string_too_short",
+                    "loc": ["body", "password"],
+                    "msg": "String should have at least 4 characters",
+                    "input": "123",
+                    "ctx": {"min_length": 4}
+                }
+            ]
+        }
