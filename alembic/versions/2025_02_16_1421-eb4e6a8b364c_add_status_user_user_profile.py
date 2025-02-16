@@ -1,8 +1,8 @@
 """add status, user, user_profile
 
-Revision ID: 72cd5e75e2ae
+Revision ID: eb4e6a8b364c
 Revises: 83cf0f0b3c2a
-Create Date: 2025-02-15 20:02:25.518842
+Create Date: 2025-02-16 14:21:21.003232
 
 """
 from typing import Sequence, Union
@@ -13,7 +13,7 @@ import sqlmodel             # NEW
 
 
 # revision identifiers, used by Alembic.
-revision: str = '72cd5e75e2ae'
+revision: str = 'eb4e6a8b364c'
 down_revision: Union[str, None] = '83cf0f0b3c2a'
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -43,7 +43,6 @@ def upgrade() -> None:
     sa.Column('is_staff', sa.Boolean(), nullable=False),
     sa.Column('last_login_at', sa.DateTime(), nullable=True),
     sa.Column('last_login_ip', sa.DateTime(), nullable=True),
-    sa.Column('verification_code', sqlmodel.sql.sqltypes.AutoString(), nullable=True),
     sa.Column('verified_at', sa.DateTime(), nullable=True),
     sa.PrimaryKeyConstraint('id')
     )

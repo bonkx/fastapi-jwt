@@ -23,13 +23,16 @@ class User(BaseModel, table=True):
     is_staff: bool = Field(default=False)
     last_login_at: datetime | None = None
     last_login_ip: datetime | None = None
-    verification_code: str | None = None
     verified_at: datetime | None = None
 
     profile: "UserProfile" = Relationship(
         back_populates="user", cascade_delete=True,
         sa_relationship_kwargs={"lazy": "selectin"}
     )
+
+    @property
+    def name(self):
+        return f"{self.first_name} {self.last_name}"
 
 
 class UserCreate(SQLModel):

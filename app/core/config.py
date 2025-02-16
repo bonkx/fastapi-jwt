@@ -1,5 +1,8 @@
 # global configs
 
+from pathlib import Path
+
+from fastapi_mail import ConnectionConfig, FastMail, MessageSchema
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -63,7 +66,6 @@ class Settings(BaseSettings):
 
 
 settings = Settings()
-
 
 # broker_url = settings.REDIS_URL
 # result_backend = settings.REDIS_URL

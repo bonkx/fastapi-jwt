@@ -1,9 +1,8 @@
 from typing import List, Optional
 
-from fastapi import HTTPException, status
 from sqlmodel import Field, Session, SQLModel, and_, col, or_, select
 
-from ..models import User, UserCreate, UserUpdate
+from ..models import EmailSchema, User, UserCreate, UserUpdate
 from ..repositories.user_repo import UserRepository
 from ..utils.exceptions import (ResponseException, UserAlreadyExists,
                                 UsernameAlreadyExists)

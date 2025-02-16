@@ -1,0 +1,29 @@
+{% extends "partials/base_email.html" %}
+
+{% block page_title %}Common Email{% endblock page_title %}
+
+{% block content %}
+<tr>
+    <td class="email-body" width="100%">
+        <table class="email-body_inner" align="center" width="570" cellpadding="0" cellspacing="0">
+            <!-- Body content -->
+            <tr>
+                <td class="content-cell">
+                    <h1>Hi {{name}},</h1>
+                    <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Eligendi, doloremque..</p>
+
+                    <!-- Sub copy -->
+                    <table class="body-sub">
+                        <tr>
+                            <td>
+                                <p class="sub">Email sent successfully</p>
+                            </td>
+                        </tr>
+                    </table>
+
+                </td>
+            </tr>
+        </table>
+    </td>
+</tr>
+{% endblock content %}

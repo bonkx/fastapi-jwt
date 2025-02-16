@@ -1,3 +1,4 @@
+from .email import *
 from .hero import *
 from .hero_publisher import *
 from .status import *

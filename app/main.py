@@ -1,16 +1,13 @@
 # Initializes the FastAPI application.
 
 from contextlib import asynccontextmanager
-from typing import Annotated, Any
 
 from fastapi import Depends, FastAPI
 from fastapi_pagination import add_pagination
 from fastapi_pagination.api import set_items_transformer
-from starlette.responses import RedirectResponse
 
 from .core import config
 from .core.database import init_db, sessionmanager
-from .dependencies import get_settings
 from .middleware import register_middleware
 from .routers.base import register_all_routers
 from .utils.exceptions import register_all_errors
@@ -55,17 +52,3 @@ register_all_routers(app)
 add_pagination(app)  # important! add pagination to your app
 # set globally pagination Items transformer
 # set_items_transformer(lambda items: [item.model_dump() for item in items])
-
-
-@app.get("/", include_in_schema=False)
-async def root():
-    return {"message": "Server is Running..."}
-
-
-@app.get("/docs", include_in_schema=False)
-async def docs(settings: Annotated[config.Settings, Depends(get_settings)]):
-    # """
-    # # Redirect
-    # to documentation (`/docs/`).
-    # """
-    return RedirectResponse(url=f"{settings.API_PREFIX}/docs/")

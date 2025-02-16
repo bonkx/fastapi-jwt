@@ -86,8 +86,8 @@ $ alembic upgrade head
   - [x] Repository (process to DB)
   - [x] Error Exception
 - [ ] Auth
-  - [ ] Register, Send verification Email
-  - [ ] Send Email with [Fastapi-mail](https://sabuhish.github.io/fastapi-mail/)
+  - [x] Register, Send verification Email
+  - [x] Send Email with [Fastapi-mail](https://sabuhish.github.io/fastapi-mail/) and fastapi BackgroundTasks
   - [ ] Open Link Verification Email
   - [ ] Resend Verification Email Code
   - [ ] Login
@@ -159,3 +159,6 @@ https://github.com/jonra1993/fastapi-alembic-sqlmodel-async/tree/main
 
 Setting up a FastAPI App with Async SQLALchemy 2.0 & Pydantic V2  
 https://medium.com/@tclaitken/setting-up-a-fastapi-app-with-async-sqlalchemy-2-0-pydantic-v2-e6c540be4308
+
+Canvas' Transactional Email Templates  
+https://github.com/usecanvas/email-templates/tree/master
