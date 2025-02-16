@@ -88,7 +88,7 @@ $ alembic upgrade head
 - [ ] Auth
   - [x] Register, Send verification Email
   - [x] Send Email with [Fastapi-mail](https://sabuhish.github.io/fastapi-mail/) and fastapi BackgroundTasks
-  - [ ] Open Link Verification Email
+  - [x] Open Link Verification Email
   - [ ] Resend Verification Email Code
   - [ ] Login
   - [ ] JWT Auth Middleware + Redis
