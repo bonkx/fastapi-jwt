@@ -1,7 +1,5 @@
 # Defines functions for sending emails.
 
-from typing import Any, Dict
-
 from fastapi import BackgroundTasks
 from fastapi_mail import ConnectionConfig, FastMail, MessageSchema, MessageType
 
@@ -23,6 +21,9 @@ email_conf = ConnectionConfig(
 )
 
 
+fm = FastMail(email_conf)
+
+
 def send_email_background(
     background_tasks: BackgroundTasks,
     email: EmailSchema,
@@ -35,23 +36,23 @@ def send_email_background(
         subtype=MessageType.html,
     )
 
-    fm = FastMail(email_conf)
+    # fm = FastMail(email_conf)
 
     background_tasks.add_task(
         fm.send_message, message, template_name=template_name)
 
 
-async def send_email_async(
-    email: EmailSchema,
-    template_name: str
-):
-    message = MessageSchema(
-        subject=email.model_dump().get("subject"),
-        recipients=email.model_dump().get("emails"),
-        template_body=email.model_dump().get("body"),
-        subtype=MessageType.html,
-    )
+# async def send_email_async(
+#     email: EmailSchema,
+#     template_name: str
+# ):
+#     message = MessageSchema(
+#         subject=email.model_dump().get("subject"),
+#         recipients=email.model_dump().get("emails"),
+#         template_body=email.model_dump().get("body"),
+#         subtype=MessageType.html,
+#     )
 
-    fm = FastMail(email_conf)
+#     # fm = FastMail(email_conf)
 
-    await fm.send_message(message, template_name=template_name)
+#     await fm.send_message(message, template_name=template_name)

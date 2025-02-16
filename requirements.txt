@@ -16,3 +16,4 @@ Faker
 fastapi-mail
 pytest
 pytest-cov
+pytest-mock

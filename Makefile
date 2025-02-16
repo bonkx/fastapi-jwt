@@ -27,9 +27,6 @@ run:
 	docker-compose up --remove-orphans
 
 cov:
-	pytest --cov=app tests/
-
-cov-html:
 	pytest --cov=app --cov-report=html tests/
 
 	

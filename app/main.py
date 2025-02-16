@@ -12,17 +12,16 @@ from .middleware import register_middleware
 from .routers.base import register_all_routers
 from .utils.exceptions import register_all_errors
 
-
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-    # await init_db()
-    yield
-    if sessionmanager._engine is not None:
-        # Close the DB connection
-        await sessionmanager.close()
+# @asynccontextmanager
+# async def lifespan(app: FastAPI):
+#     # await init_db()
+#     yield
+#     if sessionmanager._engine is not None:
+#         # Close the DB connection
+#         await sessionmanager.close()
 
 app = FastAPI(
-    lifespan=lifespan,
+    # lifespan=lifespan,
     title=config.settings.OPEN_API_TITLE,
     description=config.settings.OPEN_API_DESCRIPTION,
     version=config.settings.APP_VERSION,

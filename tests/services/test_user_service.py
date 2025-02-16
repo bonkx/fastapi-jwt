@@ -1,7 +1,5 @@
 from typing import List, Optional
 
-from fastapi_pagination import Page, add_pagination, paginate
-
 from app.models import User, UserCreate, UserUpdate
 from app.services.user_service import UserService
 from app.utils.exceptions import (UserAlreadyExists, UsernameAlreadyExists,

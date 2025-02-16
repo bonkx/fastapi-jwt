@@ -5,7 +5,7 @@ from sqlmodel.ext.asyncio.session import AsyncSession
 from starlette.responses import JSONResponse
 
 from ..core.database import get_session
-from ..core.email import send_email_async, send_email_background
+from ..core.email import send_email_background
 from ..models import EmailSchema, UserCreate, UserSchema
 from ..services.mail_service import MailService
 from ..services.user_service import UserService

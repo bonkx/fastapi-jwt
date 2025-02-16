@@ -19,9 +19,9 @@ class UserRepository(BaseRepository):
         self,
         search: Optional[str] = None,
         sorting: Optional[str] = None
-    ) -> List[UserCreate]:
+    ) -> List[User]:
         """Retrieve all data."""
-        stmt = select(UserCreate)
+        stmt = select(User)
 
         if search:
             stmt = stmt.where(

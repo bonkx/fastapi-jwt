@@ -10,7 +10,7 @@ from starlette.responses import JSONResponse, RedirectResponse
 
 from ..core import config
 from ..core.database import get_session
-from ..core.email import send_email_async, send_email_background
+from ..core.email import send_email_background
 from ..dependencies import get_settings
 from ..models import EmailSchema, UserCreate, UserSchema
 from ..services.mail_service import MailService
