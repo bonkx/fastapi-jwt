@@ -1,5 +1,7 @@
+from datetime import datetime
 from typing import Annotated, Any, List
 
+import jwt
 from fastapi import (APIRouter, BackgroundTasks, Depends, FastAPI, Query,
                      Request, status)
 from fastapi.responses import HTMLResponse
@@ -11,9 +13,8 @@ from starlette.responses import JSONResponse, RedirectResponse
 from ..core import config
 from ..core.database import get_session
 from ..core.email import send_email_background
+from ..core.security import decode_url_safe_token
 from ..dependencies import get_settings
-from ..models import EmailSchema, UserCreate, UserSchema
-from ..services.mail_service import MailService
 from ..services.user_service import UserService
 
 router = APIRouter()
@@ -38,13 +39,36 @@ async def docs(settings: Annotated[config.Settings, Depends(get_settings)]):
 
 
 @account_router.get("/verify/{token}", response_class=HTMLResponse)
-async def verify_verification_link(request: Request, token: str):
+async def verify_verification_link(
+    request: Request,
+    token: str,
+    session: AsyncSession = Depends(get_session),
+):
     # TODO:
     # check validate token
-    # if verify, update status user
+    try:
+        msg = "Account Verification Successful!"
 
-    # msg = "Oops... Wrong Token"
-    msg = "Account Verification Successful!"
+        # invalid token
+        # eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImpvaG5kb2UxMjNAZmFzdGFwaS5jb20iLCJleHAiOjE3Mzk3MDY0MTR9.e1WKE2Z9n-1-onRhfSLMiuZVZeu2AnXMo3v_U_gt3Cc
+
+        # valid token
+        # eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImpvaG5kb2UxMjNAZmFzdGFwaS5jb20iLCJleHAiOjE3Mzk3MTk4MTB9.SFevQKVENwm3Q99g8bCNSYESnXIbD0Sa39Wo9SnoQXk
+
+        decode_token = await decode_url_safe_token(token)
+        print("decode_token:", decode_token)
+
+        # get user data
+        user = await UserService(session).get_by_email(decode_token["email"])
+        # print(user)
+        # print("user.is_verified:", user.is_verified)
+        if user.is_verified:
+            msg = "Account already verified"
+        else:
+            await UserService(session).verify_user(user)
+    except Exception as e:
+        print(str(e))
+        msg = "Oops... Invalid Token"
 
     context = {
         "page_title": "Account Verification",

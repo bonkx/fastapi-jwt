@@ -2,7 +2,7 @@ from typing import List, Optional
 
 from sqlmodel import Field, Session, SQLModel, and_, col, or_, select
 
-from ..models import EmailSchema, User, UserCreate, UserUpdate
+from ..models import User, UserCreate, UserUpdate
 from ..repositories.user_repo import UserRepository
 from ..utils.exceptions import (ResponseException, UserAlreadyExists,
                                 UsernameAlreadyExists)
@@ -61,6 +61,12 @@ class UserService(BaseService):
 
         if existing_user:
             raise UsernameAlreadyExists()
+
+    async def get_by_email(self, email: str) -> User:
+        return await UserRepository(self.session).get_by_email(email)
+
+    async def verify_user(self, user: User) -> User:
+        return await UserRepository(self.session).verify_user(user)
 
     # TODO:
     # forgot password

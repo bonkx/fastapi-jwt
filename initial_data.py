@@ -116,7 +116,7 @@ async def populate_admin_super_user():
 
         if total <= 0:
             # create User
-            hashed_pasword = generate_passwd_hash(password)
+            hashed_pasword = await generate_passwd_hash(password)
             res_user = await base_repo.add_one(
                 User(**{
                     "first_name": "Admin",
@@ -139,7 +139,7 @@ async def populate_admin_super_user():
                     "status_id": 1,  # Activce
                 })
             )
-    # verify_pass = verify_password(password, "$2b$12$/fs0sJy3dQmfGCRaCTv3zeenB.kCWuIlpmW27zMu0AabwUrra7Nxq")
+    # verify_pass = await verify_password(password, "$2b$12$/fs0sJy3dQmfGCRaCTv3zeenB.kCWuIlpmW27zMu0AabwUrra7Nxq")
     # print(verify_pass)
 
     print("------ END POPULATE_ADMIN_SUPER_USER ------")

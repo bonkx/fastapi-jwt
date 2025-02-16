@@ -24,4 +24,4 @@ logger.handlers = [
 
 
 # set log-level
-logger.setLevel(logging.INFO)
+logger.setLevel(logging.WARNING)

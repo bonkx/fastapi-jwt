@@ -19,12 +19,6 @@ async def create_user_Account(
     user_data: UserCreate,
     session: AsyncSession = Depends(get_session),
 ):
-    """
-    Create user account using email, username, first_name, last_name
-    params:
-        user_data: UserCreate
-    """
-
     new_user = await UserService(session).create(user_data)
 
     if new_user:

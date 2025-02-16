@@ -14,7 +14,7 @@ passwd_context = CryptContext(schemes=["bcrypt"])
 
 
 # Hash a password using bcrypt
-def generate_passwd_hash(password: str) -> str:
+async def generate_passwd_hash(password: str) -> str:
     pwd_bytes = password.encode('utf-8')
     salt = bcrypt.gensalt()
     hashed_password = bcrypt.hashpw(password=pwd_bytes, salt=salt)
@@ -22,25 +22,26 @@ def generate_passwd_hash(password: str) -> str:
 
 
 # Check if the provided password matches the stored password (hashed)
-def verify_password(plain_password: str, hashed_password: str) -> bool:
+async def verify_password(plain_password: str, hashed_password: str) -> bool:
     password_byte_enc = plain_password.encode('utf-8')
     hashed_password_byte_enc = hashed_password.encode('utf-8')
     return bcrypt.checkpw(password=password_byte_enc, hashed_password=hashed_password_byte_enc)
 
 
-def create_url_safe_token(data: dict):
+async def create_url_safe_token(data: dict):
     # token = jwt.encode(data, settings.JWT_SECRET, algorithm="HS512")
     token = jwt.encode(data, settings.JWT_SECRET, algorithm=settings.JWT_ALGORITHM)
     return token
 
 
-def decode_url_safe_token(token: str):
+async def decode_url_safe_token(token: str):
     try:
         # token_data = jwt.decode(token, settings.JWT_SECRET, algorithms=["HS512"])
         token_data = jwt.decode(token, settings.JWT_SECRET, algorithms=[settings.JWT_ALGORITHM])
         return token_data
     except Exception as e:
         logging.error(str(e))
+        raise Exception(str(e))
 
 # def create_access_token(subject: str | Any, expires_delta: timedelta = None) -> str:
 #     if expires_delta:

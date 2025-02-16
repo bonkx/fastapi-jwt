@@ -1,4 +1,5 @@
 
+from datetime import datetime
 from typing import List, Optional
 
 from fastapi import status
@@ -6,8 +7,7 @@ from sqlalchemy.sql import text
 from sqlmodel import Field, Session, SQLModel, and_, col, or_, select
 
 from ..core.security import generate_passwd_hash
-from ..models import (User, UserCreate, UserProfile, UserProfileCreate,
-                      UserProfileUpdate, UserUpdate)
+from ..models import User, UserCreate, UserProfile, UserUpdate
 from ..utils.exceptions import (ResponseException, UserAlreadyExists,
                                 UserNotFound)
 from ..utils.validation import formatSorting
@@ -55,7 +55,7 @@ class UserRepository(BaseRepository):
         db_dict = User.model_validate(obj)
 
         # generate hashed password
-        db_dict.password = generate_passwd_hash(obj.password)
+        db_dict.password = await generate_passwd_hash(obj.password)
 
         user = await self.add_one(db_dict)
         # convert bytes password to str password
@@ -115,4 +115,14 @@ class UserRepository(BaseRepository):
                 resolution="Try again with another Username"
             )
 
+        return res
+
+    async def verify_user(self, user: User) -> User:
+        # if verify, update status=1, is_verified=True, verified_at=now()
+        user.is_verified = True
+        user.verified_at = datetime.now()
+        user.profile.status_id = 1
+
+        # process update data
+        res = await self.add_one(user)
         return res
