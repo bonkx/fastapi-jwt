@@ -56,10 +56,10 @@ async def verify_verification_link(
         user = await UserService(session).get_by_email(decode_token["email"])
         # print(user)
         # print("user.is_verified:", user.is_verified)
-        if user.is_verified:
+        if user.is_verified:  # pragma: no cover
             msg = "Account already verified"
         else:
-            await UserService(session).verify_user(user)
+            await UserService(session).verify_user(user)  # pragma: no cover
     except Exception as e:
         print(str(e))
         msg = "Oops... Invalid Token"

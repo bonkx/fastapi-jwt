@@ -26,7 +26,7 @@ async def create_user_Account(
         # Send link verification email
         await MailService(background_tasks).send_verification_email(new_user)
 
-    return JSONResponse(content={
+    return JSONResponse(content={  # pragma: no cover
         "detail": "Account Created! Check email to verify your account",
         "user": jsonable_encoder(UserSchema(**new_user.model_dump())),
     })

@@ -73,3 +73,15 @@ async def test_delete(db_session, payload_user_register):
         await UserService(db_session).get_by_id(id=created.id)
 
     assert exc.type == UserNotFound
+
+
+async def test_verify_user(db_session, payload_user_register):
+    # MOCK create user using Service
+    created = await UserService(db_session).create(UserCreate(**payload_user_register))
+    assert created.is_verified == 0
+    assert created.profile.status_id == 3
+
+    user = await UserService(db_session).verify_user(created)
+
+    assert user.is_verified == 1
+    assert user.profile.status_id == 1
