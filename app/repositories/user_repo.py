@@ -70,6 +70,8 @@ class UserRepository(BaseRepository):
             })
         )
 
+        await self.session.refresh(user)
+
         return user
 
     async def edit(self, id: int, obj: UserUpdate) -> User:
@@ -91,29 +93,21 @@ class UserRepository(BaseRepository):
         data_db = await self.get_by_id(id)
         return await self.delete_one(data_db)
 
-    async def get_by_email(self, email: str) -> User:
+    async def get_by_email(self, email: str) -> Optional[User]:
         stmt = select(User).where(User.email == email)
         res = await self.get_one(stmt)
 
         if res is None:
-            raise ResponseException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail=f"User with email {id} not found",
-                resolution="Try again with another Email"
-            )
+            raise UserNotFound()
 
         return res
 
-    async def get_by_username(self, username: str) -> User:
+    async def get_by_username(self, username: str) -> Optional[User]:
         stmt = select(User).where(User.username == username)
         res = await self.get_one(stmt)
 
         if res is None:
-            raise ResponseException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail=f"User with username {id} not found",
-                resolution="Try again with another Username"
-            )
+            raise UserNotFound()
 
         return res
 
@@ -124,5 +118,4 @@ class UserRepository(BaseRepository):
         user.profile.status_id = 1
 
         # process update data
-        res = await self.add_one(user)
-        return res
+        return await self.add_one(user)

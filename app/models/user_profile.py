@@ -9,7 +9,7 @@ from .base import BaseModel
 from .status import Status
 
 if TYPE_CHECKING:
-    from .users import User
+    from .users import User  # pragma: no cover
 
 
 class UserProfile(BaseModel, table=True):

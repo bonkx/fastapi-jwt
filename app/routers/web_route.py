@@ -17,19 +17,19 @@ from ..core.security import decode_url_safe_token
 from ..dependencies import get_settings
 from ..services.user_service import UserService
 
-router = APIRouter()
+home_router = APIRouter()
 account_router = APIRouter()
 
 # app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")
 
 
-@router.get("/", include_in_schema=False)
+@home_router.get("/", include_in_schema=False)
 async def root():
     return {"message": "Server is Running..."}
 
 
-@router.get("/docs", include_in_schema=False)
+@home_router.get("/docs", include_in_schema=False)
 async def docs(settings: Annotated[config.Settings, Depends(get_settings)]):
     # """
     # # Redirect
@@ -44,7 +44,6 @@ async def verify_verification_link(
     token: str,
     session: AsyncSession = Depends(get_session),
 ):
-    # TODO:
     # check validate token
     try:
         msg = "Account Verification Successful!"
@@ -56,9 +55,9 @@ async def verify_verification_link(
         # eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImpvaG5kb2UxMjNAZmFzdGFwaS5jb20iLCJleHAiOjE3Mzk3MTk4MTB9.SFevQKVENwm3Q99g8bCNSYESnXIbD0Sa39Wo9SnoQXk
 
         decode_token = await decode_url_safe_token(token)
-        print("decode_token:", decode_token)
+        # print("decode_token:", decode_token)
 
-        # get user data
+        # get user data by email
         user = await UserService(session).get_by_email(decode_token["email"])
         # print(user)
         # print("user.is_verified:", user.is_verified)

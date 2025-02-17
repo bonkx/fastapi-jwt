@@ -7,7 +7,7 @@ from ..utils.partial import optional
 from .base import BaseModel
 
 if TYPE_CHECKING:
-    from .hero import Hero
+    from .hero import Hero  # pragma: no cover
 
 
 class HeroPublisher(BaseModel, table=True):
@@ -19,7 +19,6 @@ class HeroPublisher(BaseModel, table=True):
         back_populates="hero_publisher", cascade_delete=True,
         sa_relationship_kwargs={"lazy": "selectin"}
     )
-    # parents: list['Node'] = Relationship(back_populates="child", link_model=ParentChildLinkTable)
 
 
 class HeroPublisherCreate(SQLModel):

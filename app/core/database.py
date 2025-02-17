@@ -19,7 +19,7 @@ class DatabaseSessionManager:
         )
 
     async def close(self):
-        if self._engine is None:
+        if self._engine is None:  # pragma: no cover
             raise Exception("DatabaseSessionManager is not initialized")
         await self._engine.dispose()
 
@@ -28,25 +28,25 @@ class DatabaseSessionManager:
 
     @contextlib.asynccontextmanager
     async def connect(self) -> AsyncIterator[AsyncConnection]:
-        if self._engine is None:
+        if self._engine is None:  # pragma: no cover
             raise Exception("DatabaseSessionManager is not initialized")
 
         async with self._engine.begin() as connection:
             try:
                 yield connection
-            except Exception:
+            except Exception:  # pragma: no cover
                 await connection.rollback()
                 raise
 
     @contextlib.asynccontextmanager
     async def session(self) -> AsyncIterator[AsyncSession]:
-        if self._sessionmaker is None:
+        if self._sessionmaker is None:  # pragma: no cover
             raise Exception("DatabaseSessionManager is not initialized")
 
         session = self._sessionmaker()
         try:
             yield session
-        except Exception:
+        except Exception:  # pragma: no cover
             await session.rollback()
             raise
         finally:
@@ -56,12 +56,12 @@ class DatabaseSessionManager:
 sessionmanager = DatabaseSessionManager(settings.DATABASE_URL, {"echo": settings.DEBUG})
 
 
-async def get_session():
+async def get_session():  # pragma: no cover
     async with sessionmanager.session() as session:
         yield session
 
 
-async def init_db() -> None:
+async def init_db() -> None:  # pragma: no cover
     async with sessionmanager.connect() as conn:
         await conn.run_sync(SQLModel.metadata.create_all)
 

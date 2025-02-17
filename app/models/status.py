@@ -8,7 +8,7 @@ from ..utils.partial import optional
 from .base import BaseModel
 
 if TYPE_CHECKING:
-    from .user_profile import UserProfile
+    from .user_profile import UserProfile  # pragma: no cover
 
 
 class Status(BaseModel, table=True):

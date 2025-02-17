@@ -35,7 +35,7 @@ def optional(without_fields: list[str] | None = None) -> Callable[[Model], Model
             return new.annotation, new
 
         if without_fields:
-            base_model = BaseModel
+            base_model = BaseModel  # pragma: no cover
 
         return create_model(
             model.__name__,

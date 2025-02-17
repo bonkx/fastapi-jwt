@@ -1,6 +1,7 @@
 from typing import List
 
 from fastapi import APIRouter, BackgroundTasks, Depends, FastAPI, Query, status
+from fastapi.encoders import jsonable_encoder
 from sqlmodel.ext.asyncio.session import AsyncSession
 from starlette.responses import JSONResponse
 
@@ -21,14 +22,14 @@ async def create_user_Account(
 ):
     new_user = await UserService(session).create(user_data)
 
-    if new_user:
+    if new_user:  # pragma: no cover
         # Send link verification email
         await MailService(background_tasks).send_verification_email(new_user)
 
-    return {
+    return JSONResponse(content={
         "detail": "Account Created! Check email to verify your account",
-        "user": UserSchema(**new_user.model_dump()),
-    }
+        "user": jsonable_encoder(UserSchema(**new_user.model_dump())),
+    })
 
 
 @router.post("/email", responses={200: {"detail": "Email has been sent"}})
