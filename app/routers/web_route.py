@@ -15,6 +15,7 @@ from ..core.database import get_session
 from ..core.email import send_email_background
 from ..core.security import decode_url_safe_token
 from ..dependencies import get_settings
+from ..services.mail_service import MailService
 from ..services.user_service import UserService
 
 home_router = APIRouter()
@@ -48,12 +49,6 @@ async def verify_verification_link(
     try:
         msg = "Account Verification Successful!"
 
-        # invalid token
-        # eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImpvaG5kb2UxMjNAZmFzdGFwaS5jb20iLCJleHAiOjE3Mzk3MDY0MTR9.e1WKE2Z9n-1-onRhfSLMiuZVZeu2AnXMo3v_U_gt3Cc
-
-        # valid token
-        # eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImpvaG5kb2UxMjNAZmFzdGFwaS5jb20iLCJleHAiOjE3Mzk3MTk4MTB9.SFevQKVENwm3Q99g8bCNSYESnXIbD0Sa39Wo9SnoQXk
-
         decode_token = await decode_url_safe_token(token)
         # print("decode_token:", decode_token)
 
@@ -79,12 +74,30 @@ async def verify_verification_link(
 
 
 @account_router.get("/resend-verification/{token}", response_class=HTMLResponse)
-async def resend_verification_link(request: Request, token: str):
-    # TODO:
+async def resend_verification_link(
+    background_tasks: BackgroundTasks,
+    request: Request,
+    token: str,
+    session: AsyncSession = Depends(get_session),
+):
     # check validate token
-    # if verify, send verification email
+    try:
+        msg = "New verification email has been successfully sent"
 
-    msg = "Verification email has been successfully sent"
+        decode_token = await decode_url_safe_token(token)
+        # print("decode_token:", decode_token)
+
+        # get user data by email
+        user = await UserService(session).get_by_email(decode_token["email"])
+        # print(user)
+
+        if user:  # pragma: no cover
+            # if token verify, send verification email
+            # Send link verification email
+            await MailService(background_tasks).send_verification_email(user)
+    except Exception as e:
+        print(str(e))
+        msg = "Oops... Invalid Token"
 
     context = {
         "page_title": "Request a new verification email",

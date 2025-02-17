@@ -38,6 +38,7 @@ class TestAuthUser:
             assert data["detail"] == "Account Created! Check email to verify your account"
             assert "id" in data["user"]
             assert data["user"]["username"] == "johndoe"
+            assert len(outbox) == 1  # mock email sent
             assert outbox[0]['To'] == "johndoe123@fastapi.com"
 
     async def test_user_register_422(self):
@@ -179,19 +180,51 @@ class TestVerification:
         assert response.status_code == status.HTTP_200_OK
         assert h1.text == "Account already verified"
 
-    # async def test_resend_verification_link(self):
-    #     token = await create_url_safe_token({"email": new_user.email, "exp": expiration_datetime})
-    #     fm.config.SUPPRESS_SEND = 1
-    #     with fm.record_messages() as outbox:
-    #         url = f"{self.url}register"
-    #         response = await self.client.post(url, json=self.payload_user_register)
-    #         data = response.json()
-    #         print(data)
+    async def test_resend_verification_link(self):
+        # register user
+        new_user = await UserRepository(self.db_session).create(UserCreate(**self.payload_user_register))
+        assert "id" in new_user.model_dump()
 
-    #         # {'detail': 'Account Created! Check email to verify your account',
-    #         #  'user': {'id': 1, 'created_at': '2025-02-15T18:39:57.973126', 'updated_at': '2025-02-15T18:39:57.973126', 'first_name': 'John', 'last_name': 'Doe', 'username': 'johndoe', 'email': 'johndoe123@fastapi.com', 'is_verified': False, 'is_superuser': False, 'is_staff': False, 'last_login_at': None, 'last_login_ip': None, 'verified_at': None, 'profile': None}}
-    #         assert response.status_code == status.HTTP_200_OK
-    #         assert data["detail"] == "Account Created! Check email to verify your account"
-    #         assert "id" in data["user"]
-    #         assert data["user"]["username"] == "johndoe"
-    #         assert outbox[0]['To'] == "johndoe123@fastapi.com"
+        token_resend = await create_url_safe_token({"email": new_user.email, "action": "resend_verification_link"})
+
+        # decode token to get email
+        decode_token = await decode_url_safe_token(token_resend)
+        assert "email" in decode_token
+        assert decode_token["email"] == new_user.email
+
+        fm.config.SUPPRESS_SEND = 1
+        with fm.record_messages() as outbox:
+            url = f"{self.url}resend-verification/{token_resend}"
+            response = await self.client.get(url)
+
+            soup = BeautifulSoup(response.content, 'html.parser')
+            h1 = soup.select_one('h1.__msg__')
+
+            assert response.status_code == status.HTTP_200_OK
+            assert h1.text == "New verification email has been successfully sent"
+            assert len(outbox) == 1  # mock email sent
+            assert outbox[0]['To'] == "johndoe123@fastapi.com"
+
+    async def test_resend_verification_link_failed(self):
+        # register user
+        new_user = await UserRepository(self.db_session).create(UserCreate(**self.payload_user_register))
+        assert "id" in new_user.model_dump()
+
+        token_resend = await create_url_safe_token({"email": new_user.email, "action": "resend_verification_link"})
+
+        # decode token to get email
+        decode_token = await decode_url_safe_token(token_resend)
+        assert "email" in decode_token
+        assert decode_token["email"] == new_user.email
+
+        fm.config.SUPPRESS_SEND = 1
+        with fm.record_messages() as outbox:
+            url = f"{self.url}resend-verification/{token_resend}_failed_token"
+            response = await self.client.get(url)
+
+            soup = BeautifulSoup(response.content, 'html.parser')
+            h1 = soup.select_one('h1.__msg__')
+
+            assert response.status_code == status.HTTP_200_OK
+            assert h1.text == "Oops... Invalid Token"
+            assert len(outbox) == 0  # mock email not sent

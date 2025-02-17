@@ -20,6 +20,6 @@ async def test_send_email(client, api_prefix):
         url = f"{api_prefix}/auth/email"
         response = await client.post(url, json=payload)
         assert response.status_code == 200
-        assert len(outbox) == 1
+        assert len(outbox) == 1  # mock email sent
         assert outbox[0]['from'] == "FastAPI <no-reply@example.com>"
         assert outbox[0]['To'] == "user@example.com"
