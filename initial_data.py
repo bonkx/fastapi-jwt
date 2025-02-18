@@ -112,17 +112,16 @@ async def populate_admin_super_user():
         base_repo = BaseRepository(db_session)
         total = await base_repo.get_count(stmt)
         # print(total)
-        password = "password"
 
         if total <= 0:
             # create User
-            hashed_pasword = await generate_passwd_hash(password)
+            hashed_pasword = await generate_passwd_hash(settings.FIRST_SUPERUSER_PASSWORD)
             res_user = await base_repo.add_one(
                 User(**{
                     "first_name": "Admin",
                     "last_name": "System",
                     "username": "admin",
-                    "email": "admin@admin.com",
+                    "email": settings.FIRST_SUPERUSER_EMAIL,
                     "password": hashed_pasword,
                     "is_verified": True,
                     "is_superuser": True,

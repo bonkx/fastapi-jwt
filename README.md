@@ -19,7 +19,7 @@ $ cd repo
 $ cp .env.example .env
 
 # activated virtual environtment
-$ source venv/bin/activated
+$ source venv/bin/activate
 
 # migrate db:
 $ alembic upgrade head
@@ -100,12 +100,12 @@ $ alembic upgrade head
   - [x] Open Link Verification Email
   - [x] Resend Verification Email Code
   - [x] Login
-  - [ ] JWT Auth Middleware
-  - [ ] Refresh Token
+  - [x] JWT Auth Middleware + Redis
+  - [-] Refresh Token
   - [ ] Forgot Password, send email OTP
   - [ ] Forgot Password Verify OTP
   - [ ] Reset Password
-  - [ ] Logout
+  - [ ] Logout + Blacklist token in Redis
 - [ ] Account
   - [ ] Get Profile
   - [ ] Update Profile

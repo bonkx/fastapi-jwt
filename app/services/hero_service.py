@@ -11,6 +11,7 @@ from .base import BaseService
 
 
 class HeroService(BaseService):
+
     async def list(
         self,
         search: Optional[str] = None,

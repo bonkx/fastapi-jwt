@@ -1,7 +1,10 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 
-router = APIRouter()
+from ..dependencies import AccessTokenBearer
 
+router = APIRouter(
+    dependencies=[Depends(AccessTokenBearer())]
+)
 
 # @router.get("/users/", tags=["users"])
 # async def read_users():

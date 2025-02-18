@@ -76,12 +76,6 @@ class InsufficientPermission(BaseException):
     pass
 
 
-class TagAlreadyExists(BaseException):
-    """Tag already exists"""
-
-    pass
-
-
 class UserNotFound(BaseException):
     """User Not found"""
 
@@ -195,21 +189,10 @@ def register_all_errors(app: FastAPI):
     app.add_exception_handler(
         InsufficientPermission,
         create_exception_handler(
-            status_code=status.HTTP_401_UNAUTHORIZED,
+            status_code=status.HTTP_403_FORBIDDEN,
             initial_detail={
                 "detail": "You do not have enough permissions to perform this action",
                 # "error_code": "insufficient_permissions",
-            },
-        ),
-    )
-
-    app.add_exception_handler(
-        TagAlreadyExists,
-        create_exception_handler(
-            status_code=status.HTTP_403_FORBIDDEN,
-            initial_detail={
-                "detail": "Tag Already exists",
-                # "error_code": "tag_exists",
             },
         ),
     )

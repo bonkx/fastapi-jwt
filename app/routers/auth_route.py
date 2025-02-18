@@ -7,7 +7,10 @@ from sqlmodel.ext.asyncio.session import AsyncSession
 
 from ..core.database import get_session
 from ..core.email import send_email_background
-from ..models import EmailSchema, UserCreate, UserLoginModel, UserSchema
+from ..dependencies import RefreshTokenBearer
+from ..models import (EmailSchema, TokenSchema, UserCreate, UserLoginModel,
+                      UserSchema)
+from ..services.auth_service import AuthService
 from ..services.mail_service import MailService
 from ..services.user_service import UserService
 
@@ -36,8 +39,16 @@ async def create_user_account(
 async def login_user_account(
     payload: UserLoginModel,
     session: AsyncSession = Depends(get_session),
-) -> JSONResponse:
-    return await UserService(session).login_user(payload)
+) -> TokenSchema:
+    return await AuthService(session).login_user(payload)
+
+
+# @router.post("/refresh_token")
+# async def get_new_access_token(
+#     token_details: dict = Depends(RefreshTokenBearer()),
+#     session: AsyncSession = Depends(get_session),
+# ):
+#     return await AuthService(session).get_new_access_token(token_details)
 
 
 @router.post("/email", responses={200: {"detail": "Email has been sent"}})

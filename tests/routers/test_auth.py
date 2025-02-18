@@ -18,11 +18,12 @@ from . import pytest, pytestmark
 
 class TestAuthUser:
     @pytest.fixture(autouse=True)
-    def init(self,  client, api_prefix, db_session, payload_user_register):
+    def init(self,  client, api_prefix, db_session, payload_user_register, payload_user_login):
         self.client = client
         self.api_prefix = api_prefix
         self.db_session = db_session
         self.payload_user_register = payload_user_register
+        self.payload_user_login = payload_user_login
         self.url = f"{self.api_prefix}/auth/"
 
     async def test_user_register(self):
@@ -78,24 +79,29 @@ class TestAuthUser:
         assert user.is_verified == 1
         assert user.profile.status_id == 1
 
-        payload = {
-            "email": "johndoe123@fastapi.com",
-            "password": "testpass123",
-        }
         url = f"{self.url}login"
-        response = await self.client.post(url, json=payload)
+        response = await self.client.post(url, json=self.payload_user_login)
         data = response.json()
         # print(data)
 
         assert response.status_code == status.HTTP_200_OK
         assert "access_token" in data
         assert "refresh_token" in data
-        assert data["user"]["email"] == payload["email"]
+        assert data["user"]["email"] == self.payload_user_login["email"]
 
     async def test_login_user_failed(self):
         # register user
         new_user = await UserRepository(self.db_session).create(UserCreate(**self.payload_user_register))
         assert "id" in new_user.model_dump()
+
+        url = f"{self.url}login"
+
+        # test user not verified yet
+        response = await self.client.post(url, json=self.payload_user_login)
+        data = response.json()
+
+        assert response.status_code == status.HTTP_403_FORBIDDEN
+        assert data["detail"] == "Account Not verified"
 
         # verify user
         user = await UserService(self.db_session).verify_user(new_user)
@@ -105,9 +111,8 @@ class TestAuthUser:
         # test wrong email (404)
         payload = {
             "email": "123@fastapi.com",
-            "password": "testpass123",
+            "password": self.payload_user_login["password"]
         }
-        url = f"{self.url}login"
         response = await self.client.post(url, json=payload)
         data = response.json()
 
@@ -116,10 +121,9 @@ class TestAuthUser:
 
         # test wrong password (400)
         payload = {
-            "email": "johndoe123@fastapi.com",
+            "email": self.payload_user_login["email"],
             "password": "wrong_password",
         }
-        url = f"{self.url}login"
         response = await self.client.post(url, json=payload)
         data = response.json()
 

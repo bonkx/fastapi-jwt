@@ -9,11 +9,6 @@ from ..models import Hero, HeroCreate, HeroSchema, HeroUpdate
 from ..services.hero_service import HeroService
 from ..utils.pagination import CustomPage
 
-# router = APIRouter(
-#     prefix="/heroes",
-#     tags=["heroes"],
-#     responses={404: {"description": "Not found"}},
-# )
 router = APIRouter()
 
 

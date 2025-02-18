@@ -2,6 +2,18 @@
 from pydantic import EmailStr, field_validator
 from sqlmodel import Field, Relationship, SQLModel
 
+from ..core.config import settings
+
+
+class TokenSchema(SQLModel):
+    detail: str | None = "Login successful"
+    token_type: str = settings.TOKEN_TYPE
+    access_token: str
+    access_token_expire_in: str = f"{(settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60)}"  # multiply minute to 60s
+    refresh_token: str
+    refresh_token_expire_in: str = f"{(settings.REFRESH_TOKEN_EXPIRE_DAYS * 86400)}"  # multiply day to 86400s
+    user: dict | None = None
+
 
 class UserLoginModel(SQLModel):
     email: str = Field(max_length=40)

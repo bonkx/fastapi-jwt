@@ -127,3 +127,11 @@ def payload_user_register():
         "email": "johndoe123@fastapi.com",
         "password": "testpass123",
     }
+
+
+@pytest.fixture(autouse=True)
+def payload_user_login():
+    return {
+        "email": "johndoe123@fastapi.com",
+        "password": "testpass123",
+    }
