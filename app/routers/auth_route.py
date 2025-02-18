@@ -2,8 +2,8 @@ from typing import List
 
 from fastapi import APIRouter, BackgroundTasks, Depends, FastAPI, Query, status
 from fastapi.encoders import jsonable_encoder
+from fastapi.responses import JSONResponse
 from sqlmodel.ext.asyncio.session import AsyncSession
-from starlette.responses import JSONResponse
 
 from ..core.database import get_session
 from ..core.email import send_email_background
@@ -36,7 +36,7 @@ async def create_user_account(
 async def login_user_account(
     payload: UserLoginModel,
     session: AsyncSession = Depends(get_session),
-):
+) -> JSONResponse:
     return await UserService(session).login_user(payload)
 
 

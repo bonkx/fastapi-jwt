@@ -72,7 +72,7 @@ class UserRepository(BaseRepository):
 
         # fix Pydantic serializer warnings Expected `str` but got `bytes`
         # convert bytes password to str password
-        user.password = str(user.password)
+        # user.password = str(user.password)
         return user
 
     async def edit(self, id: int, obj: UserUpdate) -> User:

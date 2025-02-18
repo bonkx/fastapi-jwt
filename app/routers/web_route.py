@@ -4,11 +4,10 @@ from typing import Annotated, Any, List
 import jwt
 from fastapi import (APIRouter, BackgroundTasks, Depends, FastAPI, Query,
                      Request, status)
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from sqlmodel.ext.asyncio.session import AsyncSession
-from starlette.responses import JSONResponse, RedirectResponse
 
 from ..core import config
 from ..core.database import get_session

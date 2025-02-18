@@ -11,6 +11,7 @@ from app.core.email import fm
 from app.core.security import create_url_safe_token, decode_url_safe_token
 from app.models import UserCreate, UserProfileCreate
 from app.repositories.user_repo import UserRepository
+from app.services.user_service import UserService
 
 from . import pytest, pytestmark
 
@@ -32,8 +33,6 @@ class TestAuthUser:
             data = response.json()
             print(data)
 
-            # {'detail': 'Account Created! Check email to verify your account',
-            #  'user': {'id': 1, 'created_at': '2025-02-15T18:39:57.973126', 'updated_at': '2025-02-15T18:39:57.973126', 'first_name': 'John', 'last_name': 'Doe', 'username': 'johndoe', 'email': 'johndoe123@fastapi.com', 'is_verified': False, 'is_superuser': False, 'is_staff': False, 'last_login_at': None, 'last_login_ip': None, 'verified_at': None, 'profile': None}}
             assert response.status_code == status.HTTP_200_OK
             assert data["detail"] == "Account Created! Check email to verify your account"
             assert "id" in data["user"]
@@ -68,6 +67,64 @@ class TestAuthUser:
                 }
             ]
         }
+
+    async def test_login_user(self):
+        # register user
+        new_user = await UserRepository(self.db_session).create(UserCreate(**self.payload_user_register))
+        assert "id" in new_user.model_dump()
+
+        # verify user
+        user = await UserService(self.db_session).verify_user(new_user)
+        assert user.is_verified == 1
+        assert user.profile.status_id == 1
+
+        payload = {
+            "email": "johndoe123@fastapi.com",
+            "password": "testpass123",
+        }
+        url = f"{self.url}login"
+        response = await self.client.post(url, json=payload)
+        data = response.json()
+        # print(data)
+
+        assert response.status_code == status.HTTP_200_OK
+        assert "access_token" in data
+        assert "refresh_token" in data
+        assert data["user"]["email"] == payload["email"]
+
+    async def test_login_user_failed(self):
+        # register user
+        new_user = await UserRepository(self.db_session).create(UserCreate(**self.payload_user_register))
+        assert "id" in new_user.model_dump()
+
+        # verify user
+        user = await UserService(self.db_session).verify_user(new_user)
+        assert user.is_verified == 1
+        assert user.profile.status_id == 1
+
+        # test wrong email (404)
+        payload = {
+            "email": "123@fastapi.com",
+            "password": "testpass123",
+        }
+        url = f"{self.url}login"
+        response = await self.client.post(url, json=payload)
+        data = response.json()
+
+        assert response.status_code == status.HTTP_404_NOT_FOUND
+        assert data["detail"] == "User not found"
+
+        # test wrong password (400)
+        payload = {
+            "email": "johndoe123@fastapi.com",
+            "password": "wrong_password",
+        }
+        url = f"{self.url}login"
+        response = await self.client.post(url, json=payload)
+        data = response.json()
+
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+        assert data["detail"] == "Invalid Email Or Password"
 
 
 class TestVerification:

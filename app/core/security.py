@@ -1,6 +1,7 @@
 # # Defines functions for authentication.
 
 import uuid
+from dataclasses import dataclass
 from datetime import datetime, timedelta
 from typing import Any
 
@@ -11,21 +12,26 @@ from passlib.context import CryptContext
 from ..logger import logging
 from .config import settings
 
-passwd_context = CryptContext(schemes=["bcrypt"])
+
+@dataclass
+class SolveBugBcryptWarning:
+    # Warning about missing `bcrypt.__about__`, after upgrading bcrypt from 4.0.1 to 4.1.1
+    __version__: str = getattr(bcrypt, "__version__")
+
+
+setattr(bcrypt, "__about__", SolveBugBcryptWarning())
+
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
 # Hash a password using bcrypt
 async def generate_passwd_hash(password: str) -> str:
-    pwd_bytes = password.encode('utf-8')
-    salt = bcrypt.gensalt()
-    hashed_password = bcrypt.hashpw(password=pwd_bytes, salt=salt)
-    return hashed_password
+    return pwd_context.hash(password)
 
 
 # Check if the provided password matches the stored password (hashed)
 async def verify_password(plain_password: str, hashed_password: str) -> bool:
-    password_byte_enc = plain_password.encode('utf-8')
-    return bcrypt.checkpw(password=password_byte_enc, hashed_password=hashed_password)
+    return pwd_context.verify(plain_password, hashed_password)
 
 
 async def create_url_safe_token(data: dict):
@@ -95,7 +101,7 @@ async def decode_token(token: str) -> dict:
 #         expire = datetime.now(datetime.timezone.utc) + expires_delta
 #     else:
 #         expire = datetime.now(datetime.timezone.utc) + timedelta(
-#             minutes=settings.REFRESH_TOKEN_EXPIRE_MINUTES
+#             minutes=settings.REFRESH_TOKEN_EXPIRE_DAYS
 #         )
 #     to_encode = {"exp": expire, "sub": str(subject), "type": "refresh"}
 
