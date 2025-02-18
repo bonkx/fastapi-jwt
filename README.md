@@ -100,7 +100,7 @@ $ alembic upgrade head
   - [x] Open Link Verification Email
   - [x] Resend Verification Email Code
   - [x] Login
-  - [x] JWT Auth Middleware + Redis
+  - [-] JWT Auth Middleware + Redis
   - [-] Refresh Token
   - [ ] Forgot Password, send email OTP
   - [ ] Forgot Password Verify OTP

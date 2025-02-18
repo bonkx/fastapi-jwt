@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import UTC, datetime, timedelta
 from typing import List, Optional
 
 from fastapi.responses import JSONResponse
@@ -34,7 +34,6 @@ class AuthService(BaseService):
                 "user_id": str(user.id),
                 "role": user.profile.role,
             },
-            # expiry=timedelta(seconds=5) # for DEV
         )
 
         refresh_token = await create_access_token(
@@ -51,12 +50,28 @@ class AuthService(BaseService):
 
         return token
 
-    # async def get_new_access_token(self, token_details: dict) -> TokenSchema:
-    #     expiry_timestamp = token_details["exp"]
+    async def get_new_access_token(self, token_details: dict) -> TokenSchema:
+        expiry_timestamp = token_details["exp"]
 
-    #     if datetime.fromtimestamp(expiry_timestamp) > datetime.now():
-    #         new_access_token = create_access_token(user_data=token_details["user"])
+        if datetime.fromtimestamp(expiry_timestamp, tz=UTC) > datetime.now(UTC):
+            # new_access_token = await create_access_token(user_data=token_details["user"])
+            # return JSONResponse(content={"access_token": new_access_token})
 
-    #         return JSONResponse(content={"access_token": new_access_token})
+            access_token = await create_access_token(user_data=token_details["user"])
 
-    #     raise InvalidToken()
+            refresh_token = await create_access_token(
+                user_data=token_details["user"],
+                refresh=True,
+                expiry=timedelta(days=settings.REFRESH_TOKEN_EXPIRE_DAYS),
+            )
+
+            token = TokenSchema(
+                detail="Refresh Token successful",
+                access_token=access_token,
+                refresh_token=refresh_token,
+                user=token_details["user"]
+            )
+
+            return token
+
+        raise InvalidToken()

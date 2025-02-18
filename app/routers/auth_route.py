@@ -43,12 +43,12 @@ async def login_user_account(
     return await AuthService(session).login_user(payload)
 
 
-# @router.post("/refresh_token")
-# async def get_new_access_token(
-#     token_details: dict = Depends(RefreshTokenBearer()),
-#     session: AsyncSession = Depends(get_session),
-# ):
-#     return await AuthService(session).get_new_access_token(token_details)
+@router.post("/refresh-token")
+async def get_new_access_token(
+    token_details: dict = Depends(RefreshTokenBearer()),
+    session: AsyncSession = Depends(get_session),
+):
+    return await AuthService(session).get_new_access_token(token_details)
 
 
 # @auth_router.get("/logout")
