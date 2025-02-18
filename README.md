@@ -107,7 +107,7 @@ $ alembic upgrade head
   - [ ] Reset Password
   - [ ] Logout + Blacklist token in Redis
 - [ ] Account
-  - [ ] Get Profile
+  - [ ] Get Profile (Me)
   - [ ] Update Profile
   - [ ] Update Photo Profile + thumbnail
   - [ ] Upload File, upload image(compressed)

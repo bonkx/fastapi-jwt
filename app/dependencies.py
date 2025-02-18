@@ -33,9 +33,8 @@ class TokenBearer(HTTPBearer):
 
         token = creds.credentials
 
-        token_data = await decode_token(token)
-
-        if not self.token_valid(token):
+        token_data = await self.token_valid(token)
+        if not token_data:
             raise InvalidToken()
 
         if await token_in_blocklist(token_data["jti"]):
@@ -45,10 +44,10 @@ class TokenBearer(HTTPBearer):
 
         return token_data
 
-    async def token_valid(self, token: str) -> bool:
+    async def token_valid(self, token: str) -> dict:
         token_data = await decode_token(token)
 
-        return token_data is not None
+        return token_data if token_data is not None else None
 
     async def verify_token_data(self, token_data):
         raise NotImplementedError("Please Override this method in child classes")

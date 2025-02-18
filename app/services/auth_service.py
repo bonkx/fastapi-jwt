@@ -34,7 +34,7 @@ class AuthService(BaseService):
                 "user_id": str(user.id),
                 "role": user.profile.role,
             },
-            expiry=timedelta(seconds=10),
+            # expiry=timedelta(seconds=5) # for DEV
         )
 
         refresh_token = await create_access_token(

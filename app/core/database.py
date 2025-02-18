@@ -53,7 +53,8 @@ class DatabaseSessionManager:
             await session.close()
 
 
-sessionmanager = DatabaseSessionManager(settings.DATABASE_URL, {"echo": settings.DEBUG})
+# sessionmanager = DatabaseSessionManager(settings.DATABASE_URL, {"echo": settings.DEBUG})
+sessionmanager = DatabaseSessionManager(settings.DATABASE_URL, {"echo": False})
 
 
 async def get_session():  # pragma: no cover

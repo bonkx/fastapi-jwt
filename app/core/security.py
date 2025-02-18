@@ -2,7 +2,7 @@
 
 import uuid
 from dataclasses import dataclass
-from datetime import datetime, timedelta
+from datetime import UTC, datetime, timedelta
 from typing import Any
 
 import bcrypt
@@ -54,7 +54,7 @@ async def create_access_token(
     payload = {}
 
     payload["user"] = user_data
-    payload["exp"] = datetime.now() + (
+    payload["exp"] = datetime.now(UTC) + (
         expiry if expiry is not None else timedelta(seconds=(settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60))
     )
     payload["jti"] = str(uuid.uuid4())
@@ -75,10 +75,9 @@ async def decode_token(token: str) -> dict:
         )
 
         return token_data
-
     except jwt.PyJWTError as e:
-        logging.exception(e)
-        raise Exception(str(e))
+        logging.error(str(e))
+        return None
 
 # def create_access_token(subject: str | Any, expires_delta: timedelta = None) -> str:
 #     if expires_delta:
