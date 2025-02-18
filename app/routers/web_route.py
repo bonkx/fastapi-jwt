@@ -91,10 +91,11 @@ async def resend_verification_link(
         user = await UserService(session).get_by_email(decode_token["email"])
         # print(user)
 
-        if user:  # pragma: no cover
-            # if token verify, send verification email
-            # Send link verification email
-            await MailService(background_tasks).send_verification_email(user)
+        if user.is_verified:  # pragma: no cover
+            msg = "Account already verified"
+        else:
+            # if user not verified, send verification email
+            await MailService(background_tasks).send_verification_email(user)  # pragma: no cover
     except Exception as e:
         print(str(e))
         msg = "Oops... Invalid Token"

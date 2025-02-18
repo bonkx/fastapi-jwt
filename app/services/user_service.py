@@ -2,7 +2,8 @@ from typing import List, Optional
 
 from sqlmodel import Field, Session, SQLModel, and_, col, or_, select
 
-from ..models import User, UserCreate, UserUpdate
+from ..core.security import verify_password
+from ..models import User, UserCreate, UserLoginModel, UserUpdate
 from ..repositories.user_repo import UserRepository
 from ..utils.exceptions import (ResponseException, UserAlreadyExists,
                                 UsernameAlreadyExists)
@@ -67,6 +68,16 @@ class UserService(BaseService):
 
     async def verify_user(self, user: User) -> User:
         return await UserRepository(self.session).verify_user(user)
+
+    async def login_user(self, payload: UserLoginModel) -> User:
+        # get user data by email
+        user = await self.get_by_email(payload.email)
+        print(user.password)
+
+        # verify user's password
+        password_valid = await verify_password(payload.password, user.password)
+        print(password_valid)
+        ...
 
     # TODO:
     # forgot password

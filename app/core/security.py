@@ -1,5 +1,6 @@
 # # Defines functions for authentication.
 
+import uuid
 from datetime import datetime, timedelta
 from typing import Any
 
@@ -24,23 +25,53 @@ async def generate_passwd_hash(password: str) -> str:
 # Check if the provided password matches the stored password (hashed)
 async def verify_password(plain_password: str, hashed_password: str) -> bool:
     password_byte_enc = plain_password.encode('utf-8')
-    hashed_password_byte_enc = hashed_password.encode('utf-8')
-    return bcrypt.checkpw(password=password_byte_enc, hashed_password=hashed_password_byte_enc)
+    return bcrypt.checkpw(password=password_byte_enc, hashed_password=hashed_password)
 
 
 async def create_url_safe_token(data: dict):
-    # token = jwt.encode(data, settings.JWT_SECRET, algorithm="HS512")
     token = jwt.encode(data, settings.JWT_SECRET, algorithm=settings.JWT_ALGORITHM)
     return token
 
 
 async def decode_url_safe_token(token: str):
     try:
-        # token_data = jwt.decode(token, settings.JWT_SECRET, algorithms=["HS512"])
         token_data = jwt.decode(token, settings.JWT_SECRET, algorithms=[settings.JWT_ALGORITHM])
         return token_data
     except Exception as e:
         logging.error(str(e))
+        raise Exception(str(e))
+
+
+async def create_access_token(
+    user_data: dict, expiry: timedelta = None, refresh: bool = False
+):
+    payload = {}
+
+    payload["user"] = user_data
+    payload["exp"] = datetime.now() + (
+        expiry if expiry is not None else timedelta(seconds=(settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60))
+    )
+    payload["jti"] = str(uuid.uuid4())
+
+    payload["refresh"] = refresh
+
+    token = jwt.encode(
+        payload=payload, key=settings.JWT_SECRET, algorithm=settings.JWT_ALGORITHM
+    )
+
+    return token
+
+
+async def decode_token(token: str) -> dict:
+    try:
+        token_data = jwt.decode(
+            jwt=token, key=settings.JWT_SECRET, algorithms=[settings.JWT_ALGORITHM]
+        )
+
+        return token_data
+
+    except jwt.PyJWTError as e:
+        logging.exception(e)
         raise Exception(str(e))
 
 # def create_access_token(subject: str | Any, expires_delta: timedelta = None) -> str:

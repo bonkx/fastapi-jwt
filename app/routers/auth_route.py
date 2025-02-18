@@ -7,7 +7,7 @@ from starlette.responses import JSONResponse
 
 from ..core.database import get_session
 from ..core.email import send_email_background
-from ..models import EmailSchema, UserCreate, UserSchema
+from ..models import EmailSchema, UserCreate, UserLoginModel, UserSchema
 from ..services.mail_service import MailService
 from ..services.user_service import UserService
 
@@ -15,7 +15,7 @@ router = APIRouter()
 
 
 @router.post("/register", status_code=status.HTTP_200_OK)
-async def create_user_Account(
+async def create_user_account(
     background_tasks: BackgroundTasks,
     user_data: UserCreate,
     session: AsyncSession = Depends(get_session),
@@ -28,8 +28,16 @@ async def create_user_Account(
 
     return JSONResponse(content={  # pragma: no cover
         "detail": "Account Created! Check email to verify your account",
-        "user": jsonable_encoder(UserSchema(**new_user.model_dump())),
+        "user": jsonable_encoder(UserSchema.model_validate(new_user))
     })
+
+
+@router.post("/login", status_code=status.HTTP_200_OK)
+async def login_user_account(
+    payload: UserLoginModel,
+    session: AsyncSession = Depends(get_session),
+):
+    return await UserService(session).login_user(payload)
 
 
 @router.post("/email", responses={200: {"detail": "Email has been sent"}})

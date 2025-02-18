@@ -58,8 +58,6 @@ class UserRepository(BaseRepository):
         db_dict.password = await generate_passwd_hash(obj.password)
 
         user = await self.add_one(db_dict)
-        # convert bytes password to str password
-        user.password = str(user.password)
 
         # auto create user profile
         await self.add_one(
@@ -72,6 +70,9 @@ class UserRepository(BaseRepository):
 
         await self.session.refresh(user)
 
+        # fix Pydantic serializer warnings Expected `str` but got `bytes`
+        # convert bytes password to str password
+        user.password = str(user.password)
         return user
 
     async def edit(self, id: int, obj: UserUpdate) -> User:
