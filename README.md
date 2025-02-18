@@ -18,6 +18,9 @@ $ cd repo
 # copy and edit env file
 $ cp .env.example .env
 
+# activated virtual environtment
+$ source venv/bin/activated
+
 # migrate db:
 $ alembic upgrade head
 
@@ -26,6 +29,12 @@ $ python initial_data.py
 
 # run the app
 $ python main.py
+
+# run pytest
+$ pytest
+
+# run pytest coverage
+$ pytest --cov=app --cov-report=html tests/
 ```
 
 ## How to Setup async Alembic SQLModel
@@ -124,9 +133,7 @@ $ alembic upgrade head
 
 ---
 
-
 ## Credits
-
 
 FastAPI Tutorial  
 https://fastapi.tiangolo.com/tutorial/
