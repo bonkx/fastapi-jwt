@@ -1,3 +1,4 @@
+import uuid
 from datetime import UTC, datetime, timedelta
 from typing import List, Optional
 
@@ -93,6 +94,7 @@ class AuthService(BaseService):
         token = await create_url_safe_token({  # pragma: no cover
             "email": email,
             "exp": expiration_datetime,
+            "jti": str(uuid.uuid4()),
             "action": "resend_verification_link"
         })
         # print("token encode:", token)

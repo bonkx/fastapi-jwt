@@ -7,7 +7,8 @@ from sqlalchemy.sql import text
 from sqlmodel import Field, Session, SQLModel, and_, col, or_, select
 
 from ..core.security import generate_passwd_hash
-from ..models import User, UserCreate, UserProfile, UserUpdate
+from ..models import (PasswordResetConfirmModel, User, UserCreate, UserProfile,
+                      UserUpdate)
 from ..utils.exceptions import (ResponseException, UserAlreadyExists,
                                 UserNotFound)
 from ..utils.validation import formatSorting
@@ -120,3 +121,14 @@ class UserRepository(BaseRepository):
 
         # process update data
         return await self.add_one(user)
+
+    async def reset_password(self, user: User, payload: PasswordResetConfirmModel) -> User:
+        # validate basemodel
+        PasswordResetConfirmModel.model_validate(payload)
+
+        # generate hashed password
+        user.password = await generate_passwd_hash(payload.new_password)
+
+        # process save data
+        res = await self.add_one(user)
+        return res

@@ -4,7 +4,7 @@ from typing import List, Optional
 from sqlmodel import Field, Session, SQLModel, and_, col, or_, select
 
 from ..core.config import settings
-from ..models import User, UserCreate, UserUpdate
+from ..models import PasswordResetConfirmModel, User, UserCreate, UserUpdate
 from ..repositories.user_repo import UserRepository
 from ..utils.exceptions import UserAlreadyExists, UsernameAlreadyExists
 from .base import BaseService
@@ -64,7 +64,9 @@ class UserService(BaseService):
     async def verify_user(self, user: User) -> User:
         return await UserRepository(self.session).verify_user(user)
 
+    async def reset_password(self, user: User, payload: PasswordResetConfirmModel) -> User:
+        return await UserRepository(self.session).reset_password(user, payload)
+
     # TODO:
-    # forgot password
     # reset password
     # update profile

@@ -103,8 +103,8 @@ $ alembic upgrade head
   - [x] JWT Auth Middleware
   - [x] Refresh Token
   - [x] Request Forgot Password, send email with Token
-  - [ ] Open link Request Forgot Password
-  - [ ] Request Reset Password
+  - [-] Open link Request Forgot Password
+  - [-] Request Reset Password
   - [ ] Check JWT Blacklist token in Redis
   - [ ] Logout + Blacklist token in Redis
 - [ ] Account

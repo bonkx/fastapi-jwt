@@ -1,6 +1,8 @@
 
-from pydantic import EmailStr, field_validator
+from pydantic import EmailStr, ValidationInfo, field_validator, model_validator
+from pydantic_core import PydanticCustomError
 from sqlmodel import Field, Relationship, SQLModel
+from typing_extensions import Self
 
 from ..core.config import settings
 
@@ -37,11 +39,15 @@ class PasswordResetConfirmModel(SQLModel):
     new_password: str = Field(min_length=6)
     confirm_new_password: str = Field(min_length=6)
 
-    @field_validator("confirm_new_password")
-    def verify_password_match(cls, v, values, **kwargs):
-        password = values.get("new_password")
+    # @model_validator(mode='after')
+    # def check_passwords_match(self) -> Self:
+    #     if self.new_password != self.confirm_new_password:
+    #         raise ValueError('Passwords did not match')
+    #     return self
 
-        if v != password:
-            raise ValueError("The two passwords did not match.")
-
-        return v
+    @field_validator('confirm_new_password', mode='after')
+    @classmethod
+    def check_passwords_match(cls, value: str, info: ValidationInfo) -> str:
+        if value != info.data['new_password']:
+            raise ValueError('Passwords did not match')
+        return value
