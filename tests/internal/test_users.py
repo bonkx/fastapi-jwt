@@ -52,15 +52,13 @@ class TestInternalGetUsers:
 
         # generate token
         self.token = await AuthService(self.db_session).login_user(UserLoginModel(**self.payload_user_login))
+        # set headers
+        self.headers = {"Authorization": f"Bearer {self.token.access_token}"}
 
     async def test_get_user_route(self):
-
-        access_token = self.token.access_token
-        headers = {"Authorization": f"Bearer {access_token}"}
-
         # get user
         url = f"{self.url}{self.user.id}"
-        response = await self.client.get(url, headers=headers)
+        response = await self.client.get(url, headers=self.headers)
         data = response.json()
         print(data)
 
@@ -89,19 +87,16 @@ class TestInternalGetUsers:
         ))
         assert fake_user.email == fake_email
 
-        access_token = self.token.access_token
-        headers = {"Authorization": f"Bearer {access_token}"}
-
         # delete fake user
         url = f"{self.url}{fake_user.id}"
         # # print(url)
-        response = await self.client.delete(url, headers=headers)
+        response = await self.client.delete(url, headers=self.headers)
 
         assert response.status_code == status.HTTP_204_NO_CONTENT
         assert response.text == ""
 
         # # # Try to get the deleted item
-        response = await self.client.get(url, headers=headers)
+        response = await self.client.get(url, headers=self.headers)
         assert response.status_code == status.HTTP_404_NOT_FOUND
 
     async def test_delete_user_no_token(self):
@@ -126,21 +121,54 @@ class TestInternalGetUsers:
         assert data["detail"] == "Token is invalid Or expired"
 
     async def test_get_user_route_token_in_blocklist(self):
-
-        access_token = self.token.access_token
-
         # decode token
-        decode_token = await decode_url_safe_token(access_token)
+        decode_token = await decode_url_safe_token(self.token.access_token)
         # add token to blocklist
         await add_jti_to_blocklist(decode_token["jti"])
 
-        headers = {"Authorization": f"Bearer {access_token}"}
-
         # get user
         url = f"{self.url}{self.user.id}"
-        response = await self.client.get(url, headers=headers)
+        response = await self.client.get(url, headers=self.headers)
         data = response.json()
         print(data)
 
         assert response.status_code == 401
         assert data["detail"] == "Token is invalid Or expired"
+
+    async def test_read_users(self):
+        name_for_seaching = ""
+
+        for i in range(4):
+            name_for_seaching = fake.first_name()
+            await UserRepository(self.db_session).create(UserCreate(
+                first_name=name_for_seaching,
+                last_name=fake.last_name(),
+                username=fake.user_name(),
+                email=fake.email(),
+                password=fake.password(),
+            ))
+
+        # get list user
+        url = f"{self.url}"
+        response = await self.client.get(url, headers=self.headers)
+        data = response.json()
+
+        assert response.status_code == status.HTTP_200_OK
+        assert data["results"] != []
+
+        # Test Searching
+        query_params = {"search": name_for_seaching}
+        response = await self.client.get(url, headers=self.headers, params=query_params)
+        data = response.json()
+
+        assert response.status_code == status.HTTP_200_OK
+        assert data["results"][0]["first_name"] == name_for_seaching
+
+        # Test Sorting DESC
+        query_params = {"sorting": "id:desc"}
+        response = await self.client.get(url, headers=self.headers, params=query_params)
+        data = response.json()
+
+        assert response.status_code == status.HTTP_200_OK
+        assert data["results"] != []
+        assert data["results"][0]["id"] == 5
