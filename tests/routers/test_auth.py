@@ -1,4 +1,5 @@
 import math
+import time
 from datetime import UTC, datetime, timedelta
 from random import randint
 
@@ -8,10 +9,13 @@ from fastapi import status
 from sqlmodel import Field, Session, SQLModel, and_, col, or_, select
 
 from app.core.email import fm
-from app.core.security import create_url_safe_token, decode_url_safe_token
+from app.core.security import (create_access_token, create_url_safe_token,
+                               decode_token, decode_url_safe_token)
 from app.models import UserCreate, UserProfileCreate
 from app.repositories.user_repo import UserRepository
+from app.services.auth_service import AuthService
 from app.services.user_service import UserService
+from app.utils.exceptions import InvalidToken
 
 from . import pytest, pytestmark
 
@@ -289,3 +293,67 @@ class TestVerification:
             assert response.status_code == status.HTTP_200_OK
             assert h1.text == "Oops... Invalid Token"
             assert len(outbox) == 0  # mock email not sent
+
+
+class TestTokenAuth:
+    @pytest.fixture(autouse=True)
+    def init(self,  client, api_prefix, db_session, payload_user_register):
+        self.client = client
+        self.api_prefix = api_prefix
+        self.db_session = db_session
+        self.payload_user_register = payload_user_register
+        self.url = f"{self.api_prefix}/auth/"
+
+    @pytest.fixture(autouse=True)
+    async def setup_user(self):
+        # create user
+        user = await UserRepository(self.db_session).create(UserCreate(**self.payload_user_register))
+        assert "id" in user.model_dump()
+
+        # update user role to Admin, verified, status
+        user.is_verified = True
+        user.verified_at = datetime.now()
+        user.profile.status_id = 1
+        user.profile.role = "Admin"
+
+        # update user
+        await UserRepository(self.db_session).add_one(user)
+
+        self.user = user
+
+    async def test_get_refresh_token(self):
+        # generate refresh_token
+        refresh_token = await create_access_token(
+            user_data={"email": self.user.email, "user_id": str(self.user.id)},
+            refresh=True,
+        )
+        headers = {"Authorization": f"Bearer {refresh_token}"}
+
+        # reqeust refresh token
+        url = f"{self.url}refresh-token"
+        response = await self.client.post(url, headers=headers)
+        data = response.json()
+        print(data)
+
+        assert response.status_code == 200
+        assert "access_token" in data
+
+    async def test_get_new_access_token_failed(self):
+        # generate refresh_token
+        refresh_token = await create_access_token(
+            user_data={"email": self.user.email, "user_id": str(self.user.id)},
+            refresh=True,
+            expiry=timedelta(seconds=1)
+        )
+
+        token_details = await decode_token(refresh_token)
+        # print(token_details)
+
+        # add time gap
+        time.sleep(2)
+
+        # get_new_access_token
+        with pytest.raises(InvalidToken) as exc:
+            await AuthService(self.db_session).get_new_access_token(token_details)
+
+        assert exc.type == InvalidToken

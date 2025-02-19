@@ -37,8 +37,8 @@ class TokenBearer(HTTPBearer):
         if not token_data:
             raise InvalidToken()
 
-        if await token_in_blocklist(token_data["jti"]):
-            raise InvalidToken()
+        # if await token_in_blocklist(token_data["jti"]):
+        #     raise InvalidToken()
 
         await self.verify_token_data(token_data)
 
@@ -49,7 +49,7 @@ class TokenBearer(HTTPBearer):
 
         return token_data if token_data is not None else None
 
-    async def verify_token_data(self, token_data):
+    async def verify_token_data(self, token_data):  # pragma: no cover
         raise NotImplementedError("Please Override this method in child classes")
 
 
@@ -70,9 +70,8 @@ async def get_current_user(
     session: AsyncSession = Depends(get_session),
 ):
     user_email = token_details["user"]["email"]
-    user = await UserService(session).get_by_email(user_email)
 
-    return user
+    return await UserService(session).get_by_email(user_email)
 
 
 class RoleChecker:

@@ -19,7 +19,7 @@ from . import pytest, pytestmark
 fake = Faker()
 
 
-class TestInternalUsers:
+class TestInternalGetUsers:
     @pytest.fixture(autouse=True)
     def init(self,  client, api_prefix, db_session, payload_user_register, payload_user_login):
         self.client = client
@@ -77,51 +77,67 @@ class TestInternalUsers:
         assert response.status_code == status.HTTP_403_FORBIDDEN
         assert data["detail"] == "Not authenticated"
 
-    # async def test_delete_user(self):
-    #     # create user
-    #     user = await UserRepository(self.db_session).create(UserCreate(**self.payload_user_register))
-    #     assert "id" in user.model_dump()
 
-    #     # update user role to Admin, verified status
-    #     user.is_verified = True
-    #     user.verified_at = datetime.now()
-    #     user.profile.status_id = 1
-    #     user.profile.role = "Admin"
+class TestInternalDeleteUsers:
+    @pytest.fixture(autouse=True)
+    def init(self,  client, api_prefix, db_session, payload_user_register, payload_user_login):
+        self.client = client
+        self.api_prefix = api_prefix
+        self.db_session = db_session
+        self.payload_user_register = payload_user_register
+        self.payload_user_login = payload_user_login
+        self.url = f"admin{self.api_prefix}/users/"
 
-    #     # update user
-    #     await UserRepository(self.db_session).add_one(user)
+    async def test_delete_user(self):
+        # create user
+        user = await UserRepository(self.db_session).create(UserCreate(**self.payload_user_register))
+        assert "id" in user.model_dump()
 
-    #     assert user.is_verified == True
-    #     assert user.profile.status_id == 1
-    #     assert user.profile.role == "Admin"
+        # update user role to Admin, verified status
+        user.is_verified = True
+        user.verified_at = datetime.now()
+        user.profile.status_id = 1
+        user.profile.role = "Admin"
 
-    #     # generate token
-    #     token = await AuthService(self.db_session).login_user(UserLoginModel(**self.payload_user_login))
+        # update user
+        await UserRepository(self.db_session).add_one(user)
+        # self.payload_user_register["last_name"] = "Wick"
+        # response = await UserRepository(self.db_session).edit(id=user.id, user_data=UserUpdate(**payload_user_register))
+        # data = response
+        # print(data)
 
-    #     access_token = token.access_token
-    #     headers = {"Authorization": f"Bearer {access_token}"}
+        assert user.is_verified == True
+        assert user.profile.status_id == 1
+        assert user.profile.role == "Admin"
 
-    #     # create user for deletion
-    #     fake_email = fake.email()
-    #     fake_user = await UserRepository(self.db_session).create(UserCreate(
-    #         first_name=fake.first_name(),
-    #         last_name=fake.last_name(),
-    #         username=fake.user_name(),
-    #         email=fake_email,
-    #         password=fake.password(),
-    #     ))
-    #     assert fake_user.email == fake_email
+        # create user for deletion
+        fake_email = fake.email()
+        fake_user = await UserRepository(self.db_session).create(UserCreate(
+            first_name=fake.first_name(),
+            last_name=fake.last_name(),
+            username=fake.user_name(),
+            email=fake_email,
+            password=fake.password(),
+        ))
+        assert fake_user.email == fake_email
 
-    #     # delete user fake
-    #     url = f"{self.url}{fake_user.id}"
-    #     response = await self.client.delete(url, headers=headers)
+        # generate token
+        token = await AuthService(self.db_session).login_user(UserLoginModel(**self.payload_user_login))
 
-    #     assert response.status_code == status.HTTP_204_NO_CONTENT
-    #     # assert response.text == ""
+        access_token = token.access_token
+        headers = {"Authorization": f"Bearer {access_token}"}
 
-    #     # # Try to get the deleted item
-    #     response = await self.client.get(url, headers=headers)
-    #     assert response.status_code == status.HTTP_404_NOT_FOUND
+        # delete fake user
+        url = f"{self.url}{fake_user.id}"
+        # print(url)
+        response = await self.client.delete(url, headers=headers)
+
+        assert response.status_code == status.HTTP_204_NO_CONTENT
+        assert response.text == ""
+
+        # # # Try to get the deleted item
+        response = await self.client.get(url, headers=headers)
+        assert response.status_code == status.HTTP_404_NOT_FOUND
 
     async def test_delete_user_no_token(self):
         # create user
