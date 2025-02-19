@@ -318,6 +318,9 @@ class TestTokenAuth:
 
         # update user
         await UserRepository(self.db_session).add_one(user)
+        assert user.is_verified == True
+        assert user.profile.status_id == 1
+        assert user.profile.role == "Admin"
 
         self.user = user
 
