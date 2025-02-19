@@ -1,6 +1,6 @@
 
-import math
 import time
+import uuid
 from datetime import UTC, datetime, timedelta
 from random import randint
 
@@ -9,6 +9,7 @@ from fastapi import status
 from sqlmodel import Field, Session, SQLModel, and_, col, or_, select
 
 from app.core.email import fm
+from app.core.redis import add_jti_to_blocklist
 from app.core.security import (create_url_safe_token, decode_token,
                                decode_url_safe_token)
 from app.models import UserCreate
@@ -163,3 +164,90 @@ class TestVerification:
             assert response.status_code == status.HTTP_200_OK
             assert h1.text == "Oops... Invalid Token"
             assert len(outbox) == 0  # mock email not sent
+
+
+class TestResetPassword:
+    @pytest.fixture(autouse=True)
+    def init(self,  client, api_prefix, db_session, payload_user_register):
+        self.client = client
+        self.api_prefix = api_prefix
+        self.db_session = db_session
+        self.payload_user_register = payload_user_register
+        self.url = f"/account/"
+
+    async def test_get_password_reset_confirm(self):
+        email = self.payload_user_register["email"]
+
+        # generate token
+        expiration_datetime = datetime.now(UTC) + timedelta(seconds=1800)  # pragma: no cover # 30 minutes
+        token = await create_url_safe_token({  # pragma: no cover
+            "email": email,
+            "exp": expiration_datetime,
+            "jti": str(uuid.uuid4()),
+            "action": "resend_verification_link"
+        })
+
+        # request verify link
+        url = f"{self.url}password-reset-confirm/{token}"
+        response = await self.client.get(url)
+        # print(response)
+        # print('content', response.content)
+        soup = BeautifulSoup(response.content, 'html.parser')
+        h1 = soup.select_one('h1.__msg__')
+
+        assert response.status_code == status.HTTP_200_OK
+        assert h1.text == "Please change your password"
+
+    async def test_get_password_reset_confirm_wrong_action(self):
+        email = self.payload_user_register["email"]
+
+        # generate token
+        expiration_datetime = datetime.now(UTC) + timedelta(seconds=1800)  # pragma: no cover # 30 minutes
+        token = await create_url_safe_token({  # pragma: no cover
+            "email": email,
+            "exp": expiration_datetime,
+            "jti": str(uuid.uuid4()),
+            "action": "wrong_action"
+        })
+
+        # test token action wrong value
+        url = f"{self.url}password-reset-confirm/{token}"
+        response = await self.client.get(url)
+        # print(response)
+        # print('content', response.content)
+        soup = BeautifulSoup(response.content, 'html.parser')
+        h1 = soup.select_one('h1.__msg__')
+
+        assert response.status_code == status.HTTP_200_OK
+        assert h1.text == "Oops... Invalid Token"
+
+    async def test_get_password_reset_confirm_token_in_blocklist(self):
+        email = self.payload_user_register["email"]
+
+        # generate token
+        expiration_datetime = datetime.now(UTC) + timedelta(seconds=1800)  # pragma: no cover # 30 minutes
+        token = await create_url_safe_token({  # pragma: no cover
+            "email": email,
+            "exp": expiration_datetime,
+            "jti": str(uuid.uuid4()),
+            "action": "resend_verification_link"
+        })
+
+        # decode token
+        decode_token = await decode_url_safe_token(token)
+        # add token to blocklist
+        await add_jti_to_blocklist(decode_token["jti"])
+
+        # test token token_in_blocklist
+        url = f"{self.url}password-reset-confirm/{token}"
+        response = await self.client.get(url)
+        # print(response)
+        # print('content', response.content)
+        soup = BeautifulSoup(response.content, 'html.parser')
+        h1 = soup.select_one('h1.__msg__')
+
+        assert response.status_code == status.HTTP_200_OK
+        assert h1.text == "Token is invalid Or expired"
+
+    async def test_post_password_reset_confirm(self):
+        ...
