@@ -49,11 +49,12 @@ class TestInternalGetUsers:
 
         self.user = user
 
-    async def test_get_user_route(self):
         # generate token
-        token = await AuthService(self.db_session).login_user(UserLoginModel(**self.payload_user_login))
+        self.token = await AuthService(self.db_session).login_user(UserLoginModel(**self.payload_user_login))
 
-        access_token = token.access_token
+    async def test_get_user_route(self):
+
+        access_token = self.token.access_token
         headers = {"Authorization": f"Bearer {access_token}"}
 
         # get user
@@ -87,15 +88,12 @@ class TestInternalGetUsers:
         ))
         assert fake_user.email == fake_email
 
-        # generate token
-        token = await AuthService(self.db_session).login_user(UserLoginModel(**self.payload_user_login))
-
-        access_token = token.access_token
+        access_token = self.token.access_token
         headers = {"Authorization": f"Bearer {access_token}"}
 
         # delete fake user
         url = f"{self.url}{fake_user.id}"
-        # print(url)
+        # # print(url)
         response = await self.client.delete(url, headers=headers)
 
         assert response.status_code == status.HTTP_204_NO_CONTENT

@@ -37,8 +37,8 @@ class TokenBearer(HTTPBearer):
         if not token_data:
             raise InvalidToken()
 
-        # if await token_in_blocklist(token_data["jti"]):
-        #     raise InvalidToken()
+        if await token_in_blocklist(token_data["jti"]):
+            raise InvalidToken()
 
         await self.verify_token_data(token_data)
 
