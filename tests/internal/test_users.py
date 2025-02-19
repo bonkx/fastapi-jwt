@@ -8,6 +8,7 @@ from fastapi import status
 from sqlmodel import Field, Session, SQLModel, and_, col, or_, select
 
 from app.core.email import fm
+from app.core.redis import add_jti_to_blocklist
 from app.core.security import create_url_safe_token, decode_url_safe_token
 from app.models import (User, UserCreate, UserLoginModel, UserProfileCreate,
                         UserUpdate)
@@ -122,4 +123,24 @@ class TestInternalGetUsers:
         print(data)
 
         assert response.status_code == status.HTTP_401_UNAUTHORIZED
+        assert data["detail"] == "Token is invalid Or expired"
+
+    async def test_get_user_route_token_in_blocklist(self):
+
+        access_token = self.token.access_token
+
+        # decode token
+        decode_token = await decode_url_safe_token(access_token)
+        # add token to blocklist
+        await add_jti_to_blocklist(decode_token["jti"])
+
+        headers = {"Authorization": f"Bearer {access_token}"}
+
+        # get user
+        url = f"{self.url}{self.user.id}"
+        response = await self.client.get(url, headers=headers)
+        data = response.json()
+        print(data)
+
+        assert response.status_code == 401
         assert data["detail"] == "Token is invalid Or expired"
