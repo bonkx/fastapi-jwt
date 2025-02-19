@@ -1,11 +1,11 @@
 {
   "detail": [
     {
-      "type": "string_too_short",
-      "loc": ["body", "password"],
-      "msg": "String should have at least 4 characters",
-      "input": "123",
-      "ctx": { "min_length": 4 }
+      "type": "value_error",
+      "loc": ["body", "email"],
+      "msg": "value is not a valid email address: An email address must have an @-sign.",
+      "input": "email",
+      "ctx": { "reason": "An email address must have an @-sign." }
     }
   ]
 }

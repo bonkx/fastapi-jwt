@@ -8,8 +8,8 @@ from sqlmodel.ext.asyncio.session import AsyncSession
 from ..core.database import get_session
 from ..core.email import send_email_background
 from ..dependencies import RefreshTokenBearer
-from ..models import (EmailSchema, TokenSchema, UserCreate, UserLoginModel,
-                      UserSchema)
+from ..models import (EmailSchema, PasswordResetRequestModel, TokenSchema,
+                      UserCreate, UserLoginModel, UserSchema)
 from ..services.auth_service import AuthService
 from ..services.mail_service import MailService
 from ..services.user_service import UserService
@@ -19,8 +19,8 @@ router = APIRouter()
 
 @router.post("/register", status_code=status.HTTP_200_OK)
 async def create_user_account(
-    background_tasks: BackgroundTasks,
     user_data: UserCreate,
+    background_tasks: BackgroundTasks,
     session: AsyncSession = Depends(get_session),
 ):
     new_user = await UserService(session).create(user_data)
@@ -49,6 +49,15 @@ async def get_new_access_token(
     session: AsyncSession = Depends(get_session),
 ):
     return await AuthService(session).get_new_access_token(token_details)
+
+
+@router.post("/password-reset-request")
+async def password_reset_request(
+    payload: PasswordResetRequestModel,
+    background_tasks: BackgroundTasks,
+    session: AsyncSession = Depends(get_session),
+) -> JSONResponse:
+    return await AuthService(session).password_reset_request(payload, background_tasks)
 
 
 # @auth_router.get("/logout")

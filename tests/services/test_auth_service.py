@@ -1,6 +1,6 @@
 from typing import List, Optional
 
-from app.models import User, UserCreate, UserLoginModel, UserUpdate
+from app.models import UserCreate, UserLoginModel
 from app.services.auth_service import AuthService
 from app.services.user_service import UserService
 from app.utils.exceptions import AccountNotVerified, InvalidCredentials

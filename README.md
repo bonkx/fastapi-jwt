@@ -102,9 +102,9 @@ $ alembic upgrade head
   - [x] Login
   - [x] JWT Auth Middleware
   - [x] Refresh Token
-  - [ ] Forgot Password, send email OTP
-  - [ ] Forgot Password Verify OTP
-  - [ ] Reset Password
+  - [x] Request Forgot Password, send email with Token
+  - [ ] Open link Request Forgot Password
+  - [ ] Request Reset Password
   - [ ] Check JWT Blacklist token in Redis
   - [ ] Logout + Blacklist token in Redis
 - [ ] Account
@@ -151,16 +151,16 @@ https://medium.com/@lautisuarez081/fastapi-best-practices-and-design-patterns-bu
 Generic Repository in FastApi that is managing relationships - PART 1  
 https://dev.to/messanga11/generic-repository-in-fastapi-that-is-managing-relationships-part-1-1k40
 
-Structuring FastAPI Project Using 3-Tier Design Pattern - fastapi-services-oauth2 (Used for service and repo)  
+Structuring FastAPI Project Using 3-Tier Design Pattern - fastapi-services-oauth2 -> (Used for service and repo)  
 https://levelup.gitconnected.com/structuring-fastapi-project-using-3-tier-design-pattern-4d2e88a55757  
 https://github.com/viktorsapozhok/fastapi-services-oauth2
 
-How To Customize Default JSON Response Class in FastAPI  
-https://mohsen-khodabakhshi.medium.com/customize-response-class-fastapi-83be3b32aa39
-
-FastAPI Beyond CRUD  
+FastAPI Beyond CRUD -> (Used for JWT)
 https://www.youtube.com/watch?v=Uw4FPr-dD7Q&list=PLEt8Tae2spYnHy378vMlPH--87cfeh33P  
 https://github.com/jod35/fastapi-beyond-CRUD/tree/main
+
+How To Customize Default JSON Response Class in FastAPI  
+https://mohsen-khodabakhshi.medium.com/customize-response-class-fastapi-83be3b32aa39
 
 Async configuration for FastAPI and SQLModel  
 https://github.com/jonra1993/fastapi-alembic-sqlmodel-async/tree/main

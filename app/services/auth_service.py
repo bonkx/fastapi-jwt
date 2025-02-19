@@ -1,14 +1,17 @@
 from datetime import UTC, datetime, timedelta
 from typing import List, Optional
 
+from fastapi import BackgroundTasks, status
 from fastapi.responses import JSONResponse
 
 from ..core.config import settings
-from ..core.security import create_access_token, verify_password
-from ..models import TokenSchema, UserLoginModel
+from ..core.security import (create_access_token, create_url_safe_token,
+                             verify_password)
+from ..models import PasswordResetRequestModel, TokenSchema, UserLoginModel
 from ..utils.exceptions import (AccountNotVerified, InvalidCredentials,
-                                InvalidToken)
+                                InvalidToken, UserNotFound)
 from .base import BaseService
+from .mail_service import MailService
 from .user_service import UserService
 
 
@@ -75,3 +78,47 @@ class AuthService(BaseService):
             return token
 
         raise InvalidToken()
+
+    async def password_reset_request(
+        self,
+        email_data: PasswordResetRequestModel,
+        background_tasks: BackgroundTasks,
+    ) -> JSONResponse:
+        email = email_data.email
+
+        # get user
+        await UserService(self.session).get_by_email(email)
+
+        expiration_datetime = datetime.now(UTC) + timedelta(seconds=1800)  # pragma: no cover # 30 minutes
+        token = await create_url_safe_token({  # pragma: no cover
+            "email": email,
+            "exp": expiration_datetime,
+            "action": "resend_verification_link"
+        })
+        # print("token encode:", token)
+        link = f"{settings.DOMAIN}/account/password-reset-confirm/{token}"  # pragma: no cover
+        # print("link:", link)
+
+        email_payload = {  # pragma: no cover
+            "subject": "Reset Your Password",
+            "emails": [
+                email
+            ],
+            "body": {
+                "name": email,
+                "action_url": link,
+            }
+        }
+
+        # send email
+        await MailService(background_tasks).send__email(  # pragma: no cover
+            email_payload=email_payload,
+            template_name="request_reset_password_email.html"
+        )
+
+        return JSONResponse(  # pragma: no cover
+            content={
+                "detail": "Please check your email for instructions to reset your password",
+            },
+            status_code=status.HTTP_200_OK,
+        )

@@ -6,7 +6,7 @@ from sqlmodel import Field, Session, SQLModel, and_, col, or_, select
 
 from app.core.email import fm
 from app.core.security import create_access_token, decode_token
-from app.models import UserCreate
+from app.models import PasswordResetRequestModel, UserCreate
 from app.repositories.user_repo import UserRepository
 from app.services.auth_service import AuthService
 from app.services.user_service import UserService
@@ -195,3 +195,67 @@ class TestTokenAuth:
             await AuthService(self.db_session).get_new_access_token(token_details)
 
         assert exc.type == InvalidToken
+
+
+class TestResetPassword:
+    @pytest.fixture(autouse=True)
+    def init(self,  client, api_prefix, db_session, payload_user_register):
+        self.client = client
+        self.api_prefix = api_prefix
+        self.db_session = db_session
+        self.payload_user_register = payload_user_register
+        self.url = f"{self.api_prefix}/auth/"
+
+    @pytest.fixture(autouse=True)
+    async def setup_user(self):
+        # create user
+        user = await UserRepository(self.db_session).create(UserCreate(**self.payload_user_register))
+        assert "id" in user.model_dump()
+
+        # update verified, status
+        user.is_verified = True
+        user.verified_at = datetime.now()
+        user.profile.status_id = 1
+
+        # update user
+        await UserRepository(self.db_session).add_one(user)
+        assert user.is_verified == True
+        assert user.profile.status_id == 1
+
+        self.user = user
+
+    async def test_password_reset_request(self):
+        email = self.payload_user_register["email"]
+
+        fm.config.SUPPRESS_SEND = 1
+        with fm.record_messages() as outbox:
+            # reqeust password-reset-request
+            url = f"{self.url}password-reset-request"
+            response = await self.client.post(url, json={"email": email})
+            data = response.json()
+            print(data)
+
+            assert response.status_code == 200
+            assert data["detail"] == "Please check your email for instructions to reset your password"
+
+            assert len(outbox) == 1  # mock email sent
+            assert outbox[0]['To'] == email
+
+    async def test_password_reset_request_failed(self):
+        # test validate email
+        url = f"{self.url}password-reset-request"
+        response = await self.client.post(url, json={"email": "email"})
+        data = response.json()
+
+        assert response.status_code == 422
+        assert data["detail"][0]["loc"][1] == "email"
+        assert data["detail"][0]["msg"] == "value is not a valid email address: An email address must have an @-sign."
+
+        # reqeust password-reset-request
+        url = f"{self.url}password-reset-request"
+        response = await self.client.post(url, json={"email": "email@email.com"})
+        data = response.json()
+        print(data)
+
+        assert response.status_code == 404
+        assert data["detail"] == "User not found"
