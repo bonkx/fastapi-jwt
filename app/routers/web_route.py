@@ -162,19 +162,22 @@ async def request_password_reset(
         if decode_token["action"] != "resend_verification_link":
             raise Exception("Oops... Invalid Token")
 
+        if await token_in_blocklist(decode_token["jti"]):
+            raise Exception("Token is invalid Or expired")
+
         # get user data by email
         user = await UserService(session).get_by_email(decode_token["email"])
 
-        form_data = await request.form()
+        form_data = await request.form()  # pragma: no cover
         payload = {
             "new_password": form_data.get("new_password"),
             "confirm_new_password": form_data.get("confirm_new_password")
         }
 
-        res = await UserService(session).reset_password(user, PasswordResetConfirmModel(**payload))
-        if res:
+        # reset user password
+        if await UserService(session).reset_password(user, PasswordResetConfirmModel(**payload)):
             # blacklist token
-            await add_jti_to_blocklist(decode_token["jti"])
+            await add_jti_to_blocklist(decode_token["jti"])  # pragma: no cover
     except ValidationError as e:
         print(str(e))
         context["status"] = "Error"

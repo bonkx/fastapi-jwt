@@ -130,5 +130,4 @@ class UserRepository(BaseRepository):
         user.password = await generate_passwd_hash(payload.new_password)
 
         # process save data
-        res = await self.add_one(user)
-        return res
+        return await self.add_one(user)

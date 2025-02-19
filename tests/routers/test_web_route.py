@@ -168,12 +168,32 @@ class TestVerification:
 
 class TestResetPassword:
     @pytest.fixture(autouse=True)
-    def init(self,  client, api_prefix, db_session, payload_user_register):
+    def init(self,  client, api_prefix, db_session, payload_user_register, payload_user_login):
         self.client = client
         self.api_prefix = api_prefix
         self.db_session = db_session
         self.payload_user_register = payload_user_register
+        self.payload_user_login = payload_user_login
         self.url = f"/account/"
+        self.auth_url = f"{self.api_prefix}/auth/"
+
+    @pytest.fixture(autouse=True)
+    async def setup_user(self):
+        # register user
+        new_user = await UserRepository(self.db_session).create(UserCreate(**self.payload_user_register))
+        assert "id" in new_user.model_dump()
+
+        # update user verified, status
+        new_user.is_verified = True
+        new_user.verified_at = datetime.now()
+        new_user.profile.status_id = 1
+
+        # update user
+        await UserRepository(self.db_session).add_one(new_user)
+        assert new_user.is_verified == True
+        assert new_user.profile.status_id == 1
+
+        self.user = new_user
 
     async def test_get_password_reset_confirm(self):
         email = self.payload_user_register["email"]
@@ -187,7 +207,7 @@ class TestResetPassword:
             "action": "resend_verification_link"
         })
 
-        # request verify link
+        # request password-reset-confirm
         url = f"{self.url}password-reset-confirm/{token}"
         response = await self.client.get(url)
         # print(response)
@@ -250,4 +270,123 @@ class TestResetPassword:
         assert h1.text == "Token is invalid Or expired"
 
     async def test_post_password_reset_confirm(self):
-        ...
+        email = self.payload_user_register["email"]
+
+        # generate token
+        expiration_datetime = datetime.now(UTC) + timedelta(seconds=1800)  # pragma: no cover # 30 minutes
+        token = await create_url_safe_token({  # pragma: no cover
+            "email": email,
+            "exp": expiration_datetime,
+            "jti": str(uuid.uuid4()),
+            "action": "resend_verification_link"
+        })
+
+        # request password-reset-confirm
+        url = f"{self.url}password-reset-confirm/{token}"
+        payload = {
+            "new_password": "new_password",
+            "confirm_new_password": "new_password",
+        }
+        response = await self.client.post(url, data=payload)
+        # print(response)
+        # print('content', response.content)
+        soup = BeautifulSoup(response.content, 'html.parser')
+        h1 = soup.select_one('h1.__msg__')
+
+        assert response.status_code == status.HTTP_200_OK
+        assert h1.text == "Password reset Successfully"
+
+        # test login with old password
+        url = f"{self.auth_url}login"
+        response = await self.client.post(url, json=self.payload_user_login)
+        data = response.json()
+        print(data)
+
+        assert response.status_code == 400
+        assert data["detail"] == "Invalid Email Or Password"
+
+    async def test_post_password_reset_confirm_wrong_action(self):
+        email = self.payload_user_register["email"]
+
+        # generate token
+        expiration_datetime = datetime.now(UTC) + timedelta(seconds=1800)  # pragma: no cover # 30 minutes
+        token = await create_url_safe_token({  # pragma: no cover
+            "email": email,
+            "exp": expiration_datetime,
+            "jti": str(uuid.uuid4()),
+            "action": "wrong_action"
+        })
+
+        # request password-reset-confirm
+        url = f"{self.url}password-reset-confirm/{token}"
+        payload = {
+            "new_password": "new_password",
+            "confirm_new_password": "new_password",
+        }
+        response = await self.client.post(url, data=payload)
+        # print(response)
+        # print('content', response.content)
+        soup = BeautifulSoup(response.content, 'html.parser')
+        h1 = soup.select_one('h1.__msg__')
+
+        assert response.status_code == status.HTTP_200_OK
+        assert h1.text == "Oops... Invalid Token"
+
+    async def test_post_password_reset_confirm_token_in_blocklist(self):
+        email = self.payload_user_register["email"]
+
+        # generate token
+        expiration_datetime = datetime.now(UTC) + timedelta(seconds=1800)  # pragma: no cover # 30 minutes
+        token = await create_url_safe_token({  # pragma: no cover
+            "email": email,
+            "exp": expiration_datetime,
+            "jti": str(uuid.uuid4()),
+            "action": "resend_verification_link"
+        })
+
+        # decode token
+        decode_token = await decode_url_safe_token(token)
+        # add token to blocklist
+        await add_jti_to_blocklist(decode_token["jti"])
+
+        # test token token_in_blocklist
+        url = f"{self.url}password-reset-confirm/{token}"
+        payload = {
+            "new_password": "new_password",
+            "confirm_new_password": "new_password",
+        }
+        response = await self.client.post(url, data=payload)
+        # print(response)
+        # print('content', response.content)
+        soup = BeautifulSoup(response.content, 'html.parser')
+        h1 = soup.select_one('h1.__msg__')
+
+        assert response.status_code == status.HTTP_200_OK
+        assert h1.text == "Token is invalid Or expired"
+
+    async def test_post_password_reset_confirm_password_failed(self):
+        email = self.payload_user_register["email"]
+
+        # generate token
+        expiration_datetime = datetime.now(UTC) + timedelta(seconds=1800)  # pragma: no cover # 30 minutes
+        token = await create_url_safe_token({  # pragma: no cover
+            "email": email,
+            "exp": expiration_datetime,
+            "jti": str(uuid.uuid4()),
+            "action": "resend_verification_link"
+        })
+
+        # request password-reset-confirm
+        url = f"{self.url}password-reset-confirm/{token}"
+        payload = {
+            "new_password": "password",
+            "confirm_new_password": "did_not_match_password",
+        }
+        response = await self.client.post(url, data=payload)
+        # print(response)
+        # print('content', response.content)
+        soup = BeautifulSoup(response.content, 'html.parser')
+        h1 = soup.select_one('h1.__msg__')
+
+        assert response.status_code == status.HTTP_200_OK
+        assert h1.text == "Passwords did not match or check length of your password again."
