@@ -106,7 +106,7 @@ $ alembic upgrade head
   - [x] Open link Request Forgot Password
   - [x] Submit Request Reset Password
   - [x] Check JWT Blacklist token in Redis
-  - [ ] Logout + Blacklist token in Redis
+  - [x] Logout + Blacklist token in Redis
 - [ ] Account
   - [x] Get Profile (Me)
   - [ ] Update Profile

@@ -25,6 +25,7 @@ class TestAuthUser:
         self.payload_user_register = payload_user_register
         self.payload_user_login = payload_user_login
         self.url = f"{self.api_prefix}/auth/"
+        self.account_url = f"{self.api_prefix}/account/"
 
     async def test_user_register(self):
         fm.config.SUPPRESS_SEND = 1
@@ -129,6 +130,38 @@ class TestAuthUser:
 
         assert response.status_code == status.HTTP_400_BAD_REQUEST
         assert data["detail"] == "Invalid Email Or Password"
+
+    async def test_logout_user(self):
+        # register user
+        new_user = await UserRepository(self.db_session).create(UserCreate(**self.payload_user_register))
+        assert "id" in new_user.model_dump()
+
+        # verify user
+        user = await UserService(self.db_session).verify_user(new_user)
+        assert user.is_verified == 1
+        assert user.profile.status_id == settings.STATUS_USER_ACTIVE
+
+        # generate access_token
+        access_token = await create_access_token(
+            user_data={"email": new_user.email, "user_id": str(new_user.id)},
+        )
+        headers = {"Authorization": f"Bearer {access_token}"}
+
+        # post logout
+        url = f"{self.url}logout"
+        response = await self.client.post(url, headers=headers)
+        data = response.json()
+
+        assert response.status_code == status.HTTP_200_OK
+        assert data["detail"] == "Logged Out Successfully"
+
+        # get profile
+        url = f"{self.account_url}me"
+        response = await self.client.get(url, headers=headers)
+        data = response.json()
+
+        assert response.status_code == 401
+        assert data["detail"] == "Token is invalid Or expired"
 
 
 class TestTokenAuth:

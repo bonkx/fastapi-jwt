@@ -7,7 +7,8 @@ from sqlmodel.ext.asyncio.session import AsyncSession
 
 from ..core.database import get_session
 from ..core.email import send_email_background
-from ..dependencies import RefreshTokenBearer
+from ..core.redis import add_jti_to_blocklist
+from ..dependencies import AccessTokenBearer, RefreshTokenBearer
 from ..models import (EmailSchema, PasswordResetRequestModel, TokenSchema,
                       UserCreate, UserLoginModel, UserSchema)
 from ..services.auth_service import AuthService
@@ -60,15 +61,17 @@ async def password_reset_request(
     return await AuthService(session).password_reset_request(payload, background_tasks)
 
 
-# @auth_router.get("/logout")
-# async def revoke_token(token_details: dict = Depends(AccessTokenBearer())):
-#     jti = token_details["jti"]
+@router.get("/logout")
+@router.post("/logout")
+async def revoke_token(token_details: dict = Depends(AccessTokenBearer())):
+    jti = token_details["jti"]
 
-#     await add_jti_to_blocklist(jti)
+    # add jti in blocklist redis
+    await add_jti_to_blocklist(jti)
 
-#     return JSONResponse(
-#         content={"message": "Logged Out Successfully"}, status_code=status.HTTP_200_OK
-#     )
+    return JSONResponse(
+        content={"detail": "Logged Out Successfully"}, status_code=status.HTTP_200_OK
+    )
 
 
 @router.post("/email", responses={200: {"detail": "Email has been sent"}})
