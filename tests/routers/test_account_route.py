@@ -75,3 +75,39 @@ class TestAccountUser:
 
         assert response.status_code == 401
         assert data["detail"] == "Account has been Suspended"
+
+    async def test_update_profile(self):
+        # generate access_token
+        access_token = await create_access_token(
+            user_data={"email": self.user.email, "user_id": str(self.user.id)},
+        )
+        headers = {"Authorization": f"Bearer {access_token}"}
+
+        update_payload = {
+            "first_name": "John",
+            "last_name": "Doe Update",
+            "profile": {
+                "phone": "081210843070",
+                "birthday": "2000-02-20"
+            }
+        }
+
+        # test success
+        url = f"{self.url}update"
+        response = await self.client.patch(url, headers=headers, json=update_payload)
+        data = response.json()
+
+        assert response.status_code == 200
+        assert "id" in data
+        assert data["last_name"] == "Doe Update"
+
+        # test failed
+        # change profile phone to bool
+        update_payload["profile"]["phone"] = True
+
+        response = await self.client.patch(url, headers=headers, json=update_payload)
+        data = response.json()
+
+        assert response.status_code == 422
+        assert data["detail"][0]["loc"][2] == "phone"
+        assert data["detail"][0]["msg"] == "Input should be a valid string"
