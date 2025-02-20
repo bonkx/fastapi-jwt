@@ -45,9 +45,8 @@ class UserProfileCreate(SQLModel):
 
 @optional()
 class UserProfileUpdate(SQLModel):
-    phone: str | None = None
-    photo: str | None = None
-    birthday: date | None = None
+    phone: str
+    birthday: date
 
 
 class UserProfileSchema(UserProfileCreate, BaseModel):

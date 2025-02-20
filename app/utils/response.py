@@ -1,6 +1,12 @@
-# from typing import Any, Generic, List, Optional, TypeVar
 
-# from pydantic import BaseModel
+from typing import Annotated, Any, Dict, List, Optional
+
+from pydantic import EmailStr, field_validator
+from sqlmodel import Field, Relationship, SQLModel
+
+
+class ResponseDetailSchema(SQLModel):
+    detail: str = "string"
 
 # DataType = TypeVar("DataType")
 # T = TypeVar("T")

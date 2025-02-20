@@ -14,6 +14,7 @@ from ..models import (EmailSchema, PasswordResetRequestModel, TokenSchema,
 from ..services.auth_service import AuthService
 from ..services.mail_service import MailService
 from ..services.user_service import UserService
+from ..utils.response import ResponseDetailSchema
 
 router = APIRouter()
 
@@ -61,8 +62,8 @@ async def password_reset_request(
     return await AuthService(session).password_reset_request(payload, background_tasks)
 
 
-@router.get("/logout")
-@router.post("/logout")
+@router.get("/logout", include_in_schema=False)
+@router.post("/logout", response_model=ResponseDetailSchema)
 async def revoke_token(token_details: dict = Depends(AccessTokenBearer())):
     jti = token_details["jti"]
 

@@ -132,3 +132,14 @@ class UserRepository(BaseRepository):
 
         # process save data
         return await self.add_one(user)
+
+    async def update_profile(self, user: User, payload: UserUpdate) -> User:
+        # prepare update user
+        user.sqlmodel_update(payload.model_dump(exclude_unset=True))
+
+        if payload.profile:
+            # prepare update profile
+            user.profile.sqlmodel_update(payload.profile.model_dump(exclude_unset=True))
+
+        # process save user
+        return await self.add_one(user)

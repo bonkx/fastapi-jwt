@@ -42,17 +42,17 @@ class UserCreate(SQLModel):
     email: EmailStr = Field(max_length=50)
     password: str = Field(min_length=4)
 
-    model_config = {
-        "json_schema_extra": {
-            "example": {
-                "first_name": "John",
-                "last_name": "Doe",
-                "username": "johndoe",
-                "email": "johndoe123@fastapi.com",
-                "password": "testpass123",
-            }
-        }
-    }
+    # model_config = {
+    #     "json_schema_extra": {
+    #         "example": {
+    #             "first_name": "John",
+    #             "last_name": "Doe",
+    #             "username": "johndoe",
+    #             "email": "johndoe123@fastapi.com",
+    #             "password": "testpass123",
+    #         }
+    #     }
+    # }
 
 
 @optional()
