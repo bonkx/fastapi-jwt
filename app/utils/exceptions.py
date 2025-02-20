@@ -87,6 +87,11 @@ class AccountNotVerified(Exception):
     pass
 
 
+class AccountSuspended(Exception):
+    """Account suspended"""
+    pass
+
+
 def create_exception_handler(
     status_code: int, initial_detail: Any
 ) -> Callable[[Request, Exception], JSONResponse]:
@@ -204,6 +209,18 @@ def register_all_errors(app: FastAPI):
             initial_detail={
                 "detail": "Account Not verified",
                 "resolution": "Please check your email for verification details"
+                # "error_code": "account_not_verified",
+            },
+        ),
+    )
+
+    app.add_exception_handler(
+        AccountSuspended,
+        create_exception_handler(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            initial_detail={
+                "detail": "Account has been Suspended",
+                "resolution": "Please try registering a new one"
                 # "error_code": "account_not_verified",
             },
         ),

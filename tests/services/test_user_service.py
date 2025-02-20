@@ -1,5 +1,6 @@
 from typing import List, Optional
 
+from app.core.config import settings
 from app.models import User, UserCreate, UserUpdate
 from app.services.user_service import UserService
 from app.utils.exceptions import (UserAlreadyExists, UsernameAlreadyExists,
@@ -79,9 +80,9 @@ async def test_verify_user(db_session, payload_user_register):
     # MOCK create user using Service
     created = await UserService(db_session).create(UserCreate(**payload_user_register))
     assert created.is_verified == 0
-    assert created.profile.status_id == 3
+    assert created.profile.status_id == settings.STATUS_USER_PENDING
 
     user = await UserService(db_session).verify_user(created)
 
     assert user.is_verified == 1
-    assert user.profile.status_id == 1
+    assert user.profile.status_id == settings.STATUS_USER_ACTIVE

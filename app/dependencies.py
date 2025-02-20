@@ -15,8 +15,8 @@ from .core.security import decode_token
 from .models import User
 from .services.user_service import UserService
 from .utils.exceptions import (AccessTokenRequired, AccountNotVerified,
-                               InsufficientPermission, InvalidToken,
-                               RefreshTokenRequired)
+                               AccountSuspended, InsufficientPermission,
+                               InvalidToken, RefreshTokenRequired)
 
 
 @lru_cache
@@ -68,10 +68,16 @@ class RefreshTokenBearer(TokenBearer):
 async def get_current_user(
     token_details: dict = Depends(AccessTokenBearer()),
     session: AsyncSession = Depends(get_session),
+    settings: Settings = Depends(get_settings),
 ):
     user_email = token_details["user"]["email"]
 
-    return await UserService(session).get_by_email(user_email)
+    user = await UserService(session).get_by_email(user_email)
+
+    if user.profile.status_id in [settings.STATUS_USER_IN_ACTIVE, settings.STATUS_USER_SUSPENDED]:
+        raise AccountSuspended()
+
+    return user
 
 
 class RoleChecker:

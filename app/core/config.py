@@ -62,6 +62,11 @@ class Settings(BaseSettings):
     API_VERSION: str = "v1"
     API_PREFIX: str = f"/api/{API_VERSION}"
 
+    STATUS_USER_ACTIVE: int = 1
+    STATUS_USER_IN_ACTIVE: int = 2
+    STATUS_USER_PENDING: int = 3
+    STATUS_USER_SUSPENDED: int = 4
+
     model_config = SettingsConfigDict(env_file=".env")
 
 

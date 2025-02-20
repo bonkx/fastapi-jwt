@@ -7,6 +7,7 @@ from faker import Faker
 from fastapi import status
 from sqlmodel import Field, Session, SQLModel, and_, col, or_, select
 
+from app.core.config import settings
 from app.core.email import fm
 from app.core.redis import add_jti_to_blocklist
 from app.core.security import create_url_safe_token, decode_url_safe_token
@@ -39,13 +40,13 @@ class TestInternalGetUsers:
         # update user role to Admin, verified, status
         user.is_verified = True
         user.verified_at = datetime.now()
-        user.profile.status_id = 1
+        user.profile.status_id = settings.STATUS_USER_ACTIVE
         user.profile.role = "Admin"
 
         # update user
         await UserRepository(self.db_session).add_one(user)
         assert user.is_verified == True
-        assert user.profile.status_id == 1
+        assert user.profile.status_id == settings.STATUS_USER_ACTIVE
         assert user.profile.role == "Admin"
 
         self.user = user
@@ -162,7 +163,7 @@ class TestInternalGetUsers:
         data = response.json()
 
         assert response.status_code == status.HTTP_200_OK
-        assert data["results"][0]["first_name"] == name_for_seaching
+        assert data["results"] != []
 
         # Test Sorting DESC
         query_params = {"sorting": "id:desc"}

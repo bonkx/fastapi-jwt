@@ -8,6 +8,7 @@ from bs4 import BeautifulSoup  # type: ignore
 from fastapi import status
 from sqlmodel import Field, Session, SQLModel, and_, col, or_, select
 
+from app.core.config import settings
 from app.core.email import fm
 from app.core.redis import add_jti_to_blocklist
 from app.core.security import (create_url_safe_token, decode_token,
@@ -63,7 +64,7 @@ class TestVerification:
         # get user again for checking is_verified and status
         user = await UserRepository(self.db_session).get_by_id(self.user.id)
         assert user.is_verified == 1
-        assert user.profile.status_id == 1
+        assert user.profile.status_id == settings.STATUS_USER_ACTIVE
 
     async def test_verify_token_failed(self):
         # get user by email
@@ -90,10 +91,10 @@ class TestVerification:
         assert response.status_code == status.HTTP_200_OK
         assert h1.text == "Oops... Invalid Token"
 
-        # get user again for checking is_verified and status
+        # get user again for checking is_verified and status pending
         user = await UserRepository(self.db_session).get_by_id(self.user.id)
         assert user.is_verified == 0
-        assert user.profile.status_id == 3
+        assert user.profile.status_id == settings.STATUS_USER_PENDING
 
     async def test_user_already_verified(self):
         # generate token
@@ -123,6 +124,34 @@ class TestVerification:
 
         assert response.status_code == status.HTTP_200_OK
         assert h1.text == "Account already verified"
+
+    async def test_verification_user_suspended(self):
+        # update user to status suspended
+        self.user.profile.status_id = settings.STATUS_USER_SUSPENDED
+
+        # update user
+        await UserRepository(self.db_session).add_one(self.user)
+        assert self.user.profile.status_id == settings.STATUS_USER_SUSPENDED
+
+        # generate token
+        expiration_datetime = datetime.now(UTC) + timedelta(seconds=3600)  # 60 minutes
+        token = await create_url_safe_token({"email": self.user.email, "exp": expiration_datetime})
+
+        # decode token to get email
+        decode_token = await decode_url_safe_token(token)
+        assert "email" in decode_token
+        assert decode_token["email"] == self.user.email
+
+        # request verify link
+        url = f"{self.url}verify/{token}"
+        response = await self.client.get(url)
+        # print(response)
+        # print('content', response.text)
+        soup = BeautifulSoup(response.content, 'html.parser')
+        h1 = soup.select_one('h1.__msg__')
+
+        assert response.status_code == status.HTTP_200_OK
+        assert h1.text == "Account has been suspended. Try registering a new one"
 
     async def test_resend_verification_link(self):
         token_resend = await create_url_safe_token({"email": self.user.email, "action": "resend_verification_link"})
@@ -186,12 +215,12 @@ class TestResetPassword:
         # update user verified, status
         new_user.is_verified = True
         new_user.verified_at = datetime.now()
-        new_user.profile.status_id = 1
+        new_user.profile.status_id = settings.STATUS_USER_ACTIVE
 
         # update user
         await UserRepository(self.db_session).add_one(new_user)
         assert new_user.is_verified == True
-        assert new_user.profile.status_id == 1
+        assert new_user.profile.status_id == settings.STATUS_USER_ACTIVE
 
         self.user = new_user
 

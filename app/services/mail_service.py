@@ -24,7 +24,7 @@ class MailService(EmailBackgroundTasksMixin):
         link_resend = f"{settings.DOMAIN}/account/resend-verification/{token_resend}"
 
         email_payload = {
-            "subject": "Verify your email addressss",
+            "subject": "Verify your email address",
             "emails": [
                 new_user.email
             ],

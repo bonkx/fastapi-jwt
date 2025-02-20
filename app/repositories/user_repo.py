@@ -6,6 +6,7 @@ from fastapi import status
 from sqlalchemy.sql import text
 from sqlmodel import Field, Session, SQLModel, and_, col, or_, select
 
+from ..core.config import settings
 from ..core.security import generate_passwd_hash
 from ..models import (PasswordResetConfirmModel, User, UserCreate, UserProfile,
                       UserUpdate)
@@ -117,7 +118,7 @@ class UserRepository(BaseRepository):
         # if verify, update status=1, is_verified=True, verified_at=now()
         user.is_verified = True
         user.verified_at = datetime.now()
-        user.profile.status_id = 1
+        user.profile.status_id = settings.STATUS_USER_ACTIVE
 
         # process update data
         return await self.add_one(user)

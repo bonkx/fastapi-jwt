@@ -4,9 +4,10 @@ from datetime import UTC, datetime, timedelta
 from fastapi import status
 from sqlmodel import Field, Session, SQLModel, and_, col, or_, select
 
+from app.core.config import settings
 from app.core.email import fm
 from app.core.security import create_access_token, decode_token
-from app.models import PasswordResetRequestModel, UserCreate
+from app.models import UserCreate
 from app.repositories.user_repo import UserRepository
 from app.services.auth_service import AuthService
 from app.services.user_service import UserService
@@ -76,7 +77,7 @@ class TestAuthUser:
         # verify user
         user = await UserService(self.db_session).verify_user(new_user)
         assert user.is_verified == 1
-        assert user.profile.status_id == 1
+        assert user.profile.status_id == settings.STATUS_USER_ACTIVE
 
         url = f"{self.url}login"
         response = await self.client.post(url, json=self.payload_user_login)
@@ -105,7 +106,7 @@ class TestAuthUser:
         # verify user
         user = await UserService(self.db_session).verify_user(new_user)
         assert user.is_verified == 1
-        assert user.profile.status_id == 1
+        assert user.profile.status_id == settings.STATUS_USER_ACTIVE
 
         # test wrong email (404)
         payload = {
@@ -148,13 +149,13 @@ class TestTokenAuth:
         # update user role to Admin, verified, status
         user.is_verified = True
         user.verified_at = datetime.now()
-        user.profile.status_id = 1
+        user.profile.status_id = settings.STATUS_USER_ACTIVE
         user.profile.role = "Admin"
 
         # update user
         await UserRepository(self.db_session).add_one(user)
         assert user.is_verified == True
-        assert user.profile.status_id == 1
+        assert user.profile.status_id == settings.STATUS_USER_ACTIVE
         assert user.profile.role == "Admin"
 
         self.user = user
@@ -167,7 +168,7 @@ class TestTokenAuth:
         )
         headers = {"Authorization": f"Bearer {refresh_token}"}
 
-        # reqeust refresh token
+        # request refresh token
         url = f"{self.url}refresh-token"
         response = await self.client.post(url, headers=headers)
         data = response.json()
@@ -215,12 +216,12 @@ class TestResetPassword:
         # update verified, status
         user.is_verified = True
         user.verified_at = datetime.now()
-        user.profile.status_id = 1
+        user.profile.status_id = settings.STATUS_USER_ACTIVE
 
         # update user
         await UserRepository(self.db_session).add_one(user)
         assert user.is_verified == True
-        assert user.profile.status_id == 1
+        assert user.profile.status_id == settings.STATUS_USER_ACTIVE
 
         self.user = user
 
@@ -229,7 +230,7 @@ class TestResetPassword:
 
         fm.config.SUPPRESS_SEND = 1
         with fm.record_messages() as outbox:
-            # reqeust password-reset-request
+            # request password-reset-request
             url = f"{self.url}password-reset-request"
             response = await self.client.post(url, json={"email": email})
             data = response.json()
@@ -251,7 +252,7 @@ class TestResetPassword:
         assert data["detail"][0]["loc"][1] == "email"
         assert data["detail"][0]["msg"] == "value is not a valid email address: An email address must have an @-sign."
 
-        # reqeust password-reset-request
+        # request password-reset-request
         url = f"{self.url}password-reset-request"
         response = await self.client.post(url, json={"email": "email@email.com"})
         data = response.json()

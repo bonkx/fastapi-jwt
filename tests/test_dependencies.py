@@ -2,9 +2,12 @@ from datetime import datetime
 
 from fastapi import status
 
-from app.core.security import create_access_token
+from app.core.config import settings
+from app.core.security import create_access_token, decode_token
+from app.dependencies import get_current_user, get_settings
 from app.models import UserCreate
 from app.repositories.user_repo import UserRepository
+from app.utils.exceptions import AccountSuspended
 
 from . import pytest, pytestmark
 
@@ -29,13 +32,13 @@ class TestTokenBearer:
         # update user role to Admin, verified, status
         user.is_verified = True
         user.verified_at = datetime.now()
-        user.profile.status_id = 1
+        user.profile.status_id = settings.STATUS_USER_ACTIVE
         user.profile.role = "Admin"
 
         # update user
         await UserRepository(self.db_session).add_one(user)
         assert user.is_verified == True
-        assert user.profile.status_id == 1
+        assert user.profile.status_id == settings.STATUS_USER_ACTIVE
         assert user.profile.role == "Admin"
 
         self.user = user
@@ -64,7 +67,7 @@ class TestTokenBearer:
         )
         headers = {"Authorization": f"Bearer {access_token}"}
 
-        # reqeust refresh token
+        # request refresh token
         url = f"{self.auth_url}refresh-token"
 
         response = await self.client.post(url, headers=headers)
@@ -119,3 +122,39 @@ class TestTokenBearer:
 
         assert response.status_code == 403
         assert data["detail"] == "You do not have enough permissions to perform this action"
+
+    async def test_get_current_user(self):
+        # generate token
+        token = await create_access_token(
+            user_data={"email": self.user.email, "user_id": str(self.user.id)},
+        )
+
+        token_details = await decode_token(token)
+        # print(token_details)
+
+        # get current user
+        response = await get_current_user(token_details, self.db_session, get_settings())
+
+        assert response.email == self.user.email
+
+    async def test_get_current_user_suspended(self):
+        # suspend user
+        self.user.profile.status_id = settings.STATUS_USER_SUSPENDED
+
+        # update user
+        await UserRepository(self.db_session).add_one(self.user)
+        assert self.user.profile.status_id == settings.STATUS_USER_SUSPENDED
+
+        # generate token
+        token = await create_access_token(
+            user_data={"email": self.user.email, "user_id": str(self.user.id)},
+        )
+
+        token_details = await decode_token(token)
+        # print(token_details)
+
+        # get current user
+        with pytest.raises(AccountSuspended) as exc:
+            await get_current_user(token_details, self.db_session, get_settings())
+
+        assert exc.type == AccountSuspended

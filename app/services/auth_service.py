@@ -9,8 +9,8 @@ from ..core.config import settings
 from ..core.security import (create_access_token, create_url_safe_token,
                              verify_password)
 from ..models import PasswordResetRequestModel, TokenSchema, UserLoginModel
-from ..utils.exceptions import (AccountNotVerified, InvalidCredentials,
-                                InvalidToken, UserNotFound)
+from ..utils.exceptions import (AccountNotVerified, AccountSuspended,
+                                InvalidCredentials, InvalidToken)
 from .base import BaseService
 from .mail_service import MailService
 from .user_service import UserService
@@ -22,6 +22,10 @@ class AuthService(BaseService):
         # get user data by email
         user = await UserService(self.session).get_by_email(payload.email)
         # print(user.password)
+
+        # check user status in-active or suspended
+        if user.profile.status_id in [settings.STATUS_USER_IN_ACTIVE, settings.STATUS_USER_SUSPENDED]:
+            raise AccountSuspended()
 
         # check user verify status
         if not user.is_verified:
