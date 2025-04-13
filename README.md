@@ -4,7 +4,7 @@ FastAPI Rest API with [SQLModel](https://sqlmodel.tiangolo.com/) (AsyncSession),
 
 ## Clean Architecture Pattern
 
-router -> service -> repository -> model
+router -> service -> repository -> model + schema
 
 ## How to Run
 
@@ -113,10 +113,9 @@ $ alembic upgrade head
 - [ ] Account
   - [x] Get Profile (Me)
   - [x] Update Profile
-  - [ ] Update Photo Profile + thumbnail
-  - [ ] Upload File, upload image(compressed)
+  - [x] Update Photo Profile + center Crop(Square)
   - [ ] Change Password
-  - [ ] Deletion Account with OTP
+  - [ ] Deletion Account with email OTP
   - [ ] Recover deleted account (Admin role)
   - [ ] User Activity with interval (last login at, ip address in middleware)
 - [x] CRUD
@@ -127,13 +126,11 @@ $ alembic upgrade head
   - [x] Delete Data
 - [x] Nested Model Schema
 - [ ] Open API with API KEY middleware
-- [ ] Upload Files
+- [x] Upload image(compressed/resize)
+- [x] Upload Files
 - [ ] Remove Files
 - [ ] Upload Videos
 - [ ] Create thumbnail from videos with ffmpeg
-- [ ] Upload Images and Compress Image with libvips
-- [ ] Create thumbnail from image
-- [ ] Image Processing
 
 ---
 
