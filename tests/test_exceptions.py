@@ -33,7 +33,7 @@ class TestExceptions:
         id = 1
         url = f"{self.url}{id}"
 
-        with pytest.raises(OperationalError)as exc:
+        with pytest.raises(OperationalError) as exc:
             await self.client.get(url)
 
         assert exc.type == OperationalError
@@ -41,7 +41,7 @@ class TestExceptions:
 
 async def test_http_exception_500():
 
-    with pytest.raises(Exception)as exc:
+    with pytest.raises(Exception) as exc:
         raise HTTPException(status_code=500, detail="your detail")
 
     print(exc)

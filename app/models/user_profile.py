@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING, Annotated, List, Optional
 from pydantic import EmailStr, field_validator
 from sqlmodel import Field, Relationship, SQLModel
 
+from ..core.config import settings
 from ..utils.partial import optional
 from .base import BaseModel
 from .status import Status
@@ -35,7 +36,6 @@ class UserProfile(BaseModel, table=True):
 
 class UserProfileCreate(SQLModel):
     phone: str | None = None
-    photo: str | None = None
     role: str | None = None
     birthday: date | None = None
 
@@ -49,7 +49,16 @@ class UserProfileUpdate(SQLModel):
     birthday: date
 
 
+class UserProfilePhotoUpdate(SQLModel):
+    photo: str
+
+
 class UserProfileSchema(UserProfileCreate, BaseModel):
+    photo: str | None = None
     user_id: int | None = Field(exclude=True)
     status_id: int | None = Field(exclude=True)
     status: Status | None = None
+
+    @field_validator('photo')
+    def make_photo(cls, v: str):
+        return f"{settings.DOMAIN}/{v}" if v else None

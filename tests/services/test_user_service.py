@@ -22,7 +22,7 @@ async def test_add(db_session, payload_user_register):
 async def test_add_email_exists(db_session, payload_user_register):
     await UserService(db_session).create(UserCreate(**payload_user_register))
 
-    with pytest.raises(UserAlreadyExists)as exc:
+    with pytest.raises(UserAlreadyExists) as exc:
         await UserService(db_session).create(UserCreate(**payload_user_register))
 
     assert exc.type == UserAlreadyExists
@@ -32,7 +32,7 @@ async def test_add_username_exists(db_session, payload_user_register):
     await UserService(db_session).create(UserCreate(**payload_user_register))
 
     payload_user_register["email"] = "johndoe234@fastapi.com"
-    with pytest.raises(UsernameAlreadyExists)as exc:
+    with pytest.raises(UsernameAlreadyExists) as exc:
         await UserService(db_session).create(UserCreate(**payload_user_register))
 
     assert exc.type == UsernameAlreadyExists

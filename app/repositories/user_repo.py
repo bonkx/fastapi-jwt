@@ -143,3 +143,10 @@ class UserRepository(BaseRepository):
 
         # process save user
         return await self.add_one(user)
+
+    async def update_photo_profile(self, user: User, file_path: str) -> User:
+
+        user.profile.photo = file_path
+
+        # process save
+        return await self.add_one(user)

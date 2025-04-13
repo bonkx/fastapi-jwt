@@ -3,6 +3,7 @@
 from contextlib import asynccontextmanager
 
 from fastapi import Depends, FastAPI
+from fastapi.staticfiles import StaticFiles
 from fastapi_pagination import add_pagination
 from fastapi_pagination.api import set_items_transformer
 
@@ -37,6 +38,8 @@ app = FastAPI(
     docs_url=f"{config.settings.API_PREFIX}/docs",
     redoc_url=f"{config.settings.API_PREFIX}/redoc"
 )
+
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
 # register all Exceptions
 register_all_errors(app)

@@ -1,4 +1,8 @@
+import os
 from datetime import datetime
+from io import BytesIO
+
+from PIL import Image  # type: ignore
 
 from app.core.config import settings
 from app.core.security import create_access_token
@@ -111,3 +115,46 @@ class TestAccountUser:
         assert response.status_code == 422
         assert data["detail"][0]["loc"][2] == "phone"
         assert data["detail"][0]["msg"] == "Input should be a valid string"
+
+    async def test_upload_photo_profile(self):
+        # generate access_token
+        access_token = await create_access_token(
+            user_data={"email": self.user.email, "user_id": str(self.user.id)},
+        )
+        headers = {"Authorization": f"Bearer {access_token}"}
+
+        root_dir = os.path.abspath(".")
+        file_path = os.path.join(root_dir, f"static/images/avatar.jpg")
+        if os.path.isfile(file_path):
+            _files = {"file": open(file_path, 'rb')}
+
+        # request upload photo profile
+        url = f"{self.url}photo"
+        response = await self.client.post(url, headers=headers, files=_files)
+        data = response.json()
+        # print(data)
+
+        assert response.status_code == 200
+        assert "id" in data
+        assert data["profile"]["photo"] != None
+
+    async def test_upload_photo_profile_failed(self):
+        # generate access_token
+        access_token = await create_access_token(
+            user_data={"email": self.user.email, "user_id": str(self.user.id)},
+        )
+        headers = {"Authorization": f"Bearer {access_token}"}
+
+        root_dir = os.path.abspath(".")
+        file_path = os.path.join(root_dir, f"tests/data/test_file.pdf")
+        if os.path.isfile(file_path):
+            _files = {"file": open(file_path, 'rb')}
+
+        # request upload photo profile
+        url = f"{self.url}photo"
+        response = await self.client.post(url, headers=headers, files=_files)
+        data = response.json()
+        print(data)
+
+        assert response.status_code == 500
+        assert data["detail"] == "Please make sure the file is an image file"

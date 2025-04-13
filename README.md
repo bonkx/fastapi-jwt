@@ -21,6 +21,9 @@ $ cp .env.example .env
 # activated virtual environtment
 $ source venv/bin/activate
 
+# run your redis server
+$ redis-cli
+
 # migrate db:
 $ alembic upgrade head
 

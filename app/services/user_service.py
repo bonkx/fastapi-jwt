@@ -68,11 +68,14 @@ class UserService(BaseService):
     async def reset_password(self, user: User, payload: PasswordResetConfirmModel) -> User:
         return await UserRepository(self.session).reset_password(user, payload)
 
-    async def update_profile(self, user: UserSchema, payload: UserUpdate) -> User:
+    async def update_profile(self, user: User, payload: UserUpdate) -> User:
         # validate payload
         UserUpdate.model_validate(payload)
 
         return await UserRepository(self.session).update_profile(user, payload)
+
+    async def update_photo_profile(self, user: User, file_path: str) -> User:
+        return await UserRepository(self.session).update_photo_profile(user, file_path)
 
     # TODO:
     # reset password

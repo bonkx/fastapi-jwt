@@ -1,5 +1,6 @@
 import redis.asyncio as aioredis  # type: ignore
 
+from ..logger import logging
 from .config import settings
 
 token_blocklist = aioredis.from_url(settings.REDIS_URL)

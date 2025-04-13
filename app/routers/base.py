@@ -3,7 +3,7 @@ from fastapi import FastAPI
 from ..core.config import settings
 from ..internal import admin
 from . import (account_route, auth_route, hero_publisher_route, hero_route,
-               web_route)
+               misc_route, web_route)
 
 
 def register_all_routers(app: FastAPI):
@@ -13,6 +13,7 @@ def register_all_routers(app: FastAPI):
     # api urls
     app.include_router(auth_route.router, prefix=f"{settings.API_PREFIX}/auth", tags=["Authentications"])
     app.include_router(account_route.router, prefix=f"{settings.API_PREFIX}/account", tags=["Accounts"])
+    app.include_router(misc_route.upload_router, prefix=f"{settings.API_PREFIX}/upload", tags=["Miscs"])
 
     app.include_router(hero_publisher_route.router, prefix=f"{settings.API_PREFIX}/hero-publishers", tags=["Hero Publishers"])
     app.include_router(hero_route.router, prefix=f"{settings.API_PREFIX}/heroes", tags=["Heroes"])
