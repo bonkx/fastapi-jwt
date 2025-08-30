@@ -66,21 +66,6 @@ class RefreshTokenBearer(TokenBearer):
             raise RefreshTokenRequired()
 
 
-# async def get_current_user(
-#     token_details: dict = Depends(AccessTokenBearer()),
-#     session: AsyncSession = Depends(get_session),
-#     settings: Settings = Depends(get_settings),
-# ):
-#     user_email = token_details["user"]["email"]
-
-#     repo = UserRepository(session)
-#     user = await UserService(repo).get_by_email(user_email)
-
-#     if user.profile.status_id in [settings.STATUS_USER_IN_ACTIVE, settings.STATUS_USER_SUSPENDED]:
-#         raise AccountSuspended()
-
-#     return user
-
 class GetCurrentUser:
     async def __call__(
         self,

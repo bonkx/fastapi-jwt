@@ -1,3 +1,10 @@
+CURRENT_DIRECTORY := $(shell pwd)
+CURRENT_USER := $(shell whoami)
+CURRENT_TIME = $(shell date +"%Y%m%d_%H%M")
+CURRENT_TIME_SECONDS = $(shell date +"%Y%m%d_%H%M%S")
+
+PYTEST_REPORT_FILENAME = pytest-report.${CURRENT_TIME}.html
+
 guard-%:
 	@ if [ "${${*}}" = "" ]; then \
         echo "Environment variable $* not set"; \
@@ -8,7 +15,8 @@ hello: guard-MSG
 	@echo ${MSG}
 
 dev:
-	python main.py
+	python -m uvicorn app.main:app --reload
+# 	python main.py
 
 migrations: guard-MSG
 	alembic revision --autogenerate -m "${MSG}"
@@ -26,7 +34,17 @@ build:
 run:
 	docker-compose up --remove-orphans
 
-cov:
-	pytest --cov=app --cov-report=html tests/
+test:
+	-pytest --cov --cov-report=html --html=${PYTEST_REPORT_FILENAME} ${ARGS}
+	-start "" "$(CURRENT_DIRECTORY)/${PYTEST_REPORT_FILENAME}"
+	-start "" "$(CURRENT_DIRECTORY)/htmlcov/index.html"
+# 	-python -m webbrowser -t file://${CURRENT_DIRECTORY}/${PYTEST_REPORT_FILENAME}
+# 	-python -m webbrowser -t file://${CURRENT_DIRECTORY}/htmlcov/index.html
 
-	
+test-changes:
+ifdef RESET
+	@make reset-artifact ARTIFACT=.testmondata
+endif
+	-pytest --testmon --html=${PYTEST_REPORT_FILENAME} ${ARGS}
+	-start "" "$(CURRENT_DIRECTORY)/${PYTEST_REPORT_FILENAME}"
+# 	-python -m webbrowser -t file://${CURRENT_DIRECTORY}/${PYTEST_REPORT_FILENAME}

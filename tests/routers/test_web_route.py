@@ -13,7 +13,7 @@ from app.core.email import fm
 from app.core.redis import add_jti_to_blocklist
 from app.core.security import (create_url_safe_token, decode_token,
                                decode_url_safe_token)
-from app.models import UserCreate
+from app.schemas.user_schema import UserCreateSchema
 from app.repositories.user_repo import UserRepository
 
 from . import pytest, pytestmark
@@ -21,7 +21,7 @@ from . import pytest, pytestmark
 
 class TestVerification:
     @pytest.fixture(autouse=True)
-    def init(self,  client, api_prefix, db_session, payload_user_register):
+    def init(self, client, api_prefix, db_session, payload_user_register):
         self.client = client
         self.api_prefix = api_prefix
         self.db_session = db_session
@@ -31,7 +31,7 @@ class TestVerification:
     @pytest.fixture(autouse=True)
     async def setup_user(self):
         # register user
-        new_user = await UserRepository(self.db_session).create(UserCreate(**self.payload_user_register))
+        new_user = await UserRepository(self.db_session).create(UserCreateSchema(**self.payload_user_register))
         assert "id" in new_user.model_dump()
 
         self.user = new_user
@@ -197,7 +197,7 @@ class TestVerification:
 
 class TestResetPassword:
     @pytest.fixture(autouse=True)
-    def init(self,  client, api_prefix, db_session, payload_user_register, payload_user_login):
+    def init(self, client, api_prefix, db_session, payload_user_register, payload_user_login):
         self.client = client
         self.api_prefix = api_prefix
         self.db_session = db_session
@@ -209,7 +209,7 @@ class TestResetPassword:
     @pytest.fixture(autouse=True)
     async def setup_user(self):
         # register user
-        new_user = await UserRepository(self.db_session).create(UserCreate(**self.payload_user_register))
+        new_user = await UserRepository(self.db_session).create(UserCreateSchema(**self.payload_user_register))
         assert "id" in new_user.model_dump()
 
         # update user verified, status

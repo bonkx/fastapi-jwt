@@ -10,7 +10,8 @@ from app.core.database import DatabaseSessionManager, get_session
 from app.main import app
 
 BASE_URL = 'http://test'
-DATABASE_URL = 'sqlite+aiosqlite:///:memory:'
+# DATABASE_URL = 'sqlite+aiosqlite:///:memory:'
+DATABASE_URL = 'sqlite+aiosqlite:///testdb.sqlite3'
 
 
 @pytest.fixture(autouse=True)
@@ -53,11 +54,11 @@ async def client(db_session):
     """Create a test client that uses the override_get_db fixture to return a session."""
 
     async def ovveride_get_session() -> AsyncSession:  # type: ignore
-        yield db_session
-        # try:
-        #     yield db_session
-        # finally:
-        #     await db_session.close()
+        # yield db_session
+        try:
+            yield db_session
+        finally:
+            await db_session.close()
 
     # ovveride Session
     app.dependency_overrides[get_session] = ovveride_get_session
@@ -67,26 +68,12 @@ async def client(db_session):
 
 
 # let test session to know it is running inside event loop
-@pytest.fixture(scope='session')
-def event_loop():
-    policy = asyncio.get_event_loop_policy()
-    loop = policy.new_event_loop()
-    yield loop
-    loop.close()
-
-# @pytest.fixture(scope="session")
+# @pytest.fixture(scope='session')
 # def event_loop():
-#     try:
-#         loop = asyncio.get_running_loop()
-#     except RuntimeError:
-#         loop = asyncio.new_event_loop()
+#     policy = asyncio.get_event_loop_policy()
+#     loop = policy.new_event_loop()
 #     yield loop
 #     loop.close()
-
-
-@pytest.fixture(scope="class")
-def abc():
-    return "abc"
 
 
 @pytest.fixture(autouse=True)
@@ -135,6 +122,14 @@ def payload_user_register():
         "username": "johndoe",
         "email": "johndoe123@fastapi.com",
         "password": "testpass123",
+    }
+
+
+@pytest.fixture(autouse=True)
+def payload_user_update():
+    return {
+        "first_name": "John",
+        "last_name": "Wick",
     }
 
 

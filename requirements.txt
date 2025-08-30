@@ -17,6 +17,8 @@ fastapi-mail
 pytest
 pytest-cov
 pytest-mock
+pytest-html
+pytest-testmon
 beautifulsoup4
 redis
 pillow

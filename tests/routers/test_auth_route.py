@@ -7,7 +7,7 @@ from sqlmodel import Field, Session, SQLModel, and_, col, or_, select
 from app.core.config import settings
 from app.core.email import fm
 from app.core.security import create_access_token, decode_token
-from app.models import UserCreate
+from app.schemas.user_schema import UserCreateSchema
 from app.repositories.user_repo import UserRepository
 from app.services.auth_service import AuthService
 from app.services.user_service import UserService
@@ -18,7 +18,7 @@ from . import pytest, pytestmark
 
 class TestAuthUser:
     @pytest.fixture(autouse=True)
-    def init(self,  client, api_prefix, db_session, payload_user_register, payload_user_login):
+    def init(self, client, api_prefix, db_session, payload_user_register, payload_user_login):
         self.client = client
         self.api_prefix = api_prefix
         self.db_session = db_session
@@ -26,6 +26,8 @@ class TestAuthUser:
         self.payload_user_login = payload_user_login
         self.url = f"{self.api_prefix}/auth/"
         self.account_url = f"{self.api_prefix}/account/"
+        self.repo = UserRepository(self.db_session)
+        self.srv = UserService(self.repo)
 
     async def test_user_register(self):
         fm.config.SUPPRESS_SEND = 1
@@ -72,11 +74,11 @@ class TestAuthUser:
 
     async def test_login_user(self):
         # register user
-        new_user = await UserRepository(self.db_session).create(UserCreate(**self.payload_user_register))
+        new_user = await self.repo.create(UserCreateSchema(**self.payload_user_register))
         assert "id" in new_user.model_dump()
 
         # verify user
-        user = await UserService(self.db_session).verify_user(new_user)
+        user = await self.srv.verify_user(new_user)
         assert user.is_verified == 1
         assert user.profile.status_id == settings.STATUS_USER_ACTIVE
 
@@ -92,7 +94,7 @@ class TestAuthUser:
 
     async def test_login_user_failed(self):
         # register user
-        new_user = await UserRepository(self.db_session).create(UserCreate(**self.payload_user_register))
+        new_user = await self.repo.create(UserCreateSchema(**self.payload_user_register))
         assert "id" in new_user.model_dump()
 
         url = f"{self.url}login"
@@ -105,7 +107,7 @@ class TestAuthUser:
         assert data["detail"] == "Account Not verified"
 
         # verify user
-        user = await UserService(self.db_session).verify_user(new_user)
+        user = await self.srv.verify_user(new_user)
         assert user.is_verified == 1
         assert user.profile.status_id == settings.STATUS_USER_ACTIVE
 
@@ -133,11 +135,11 @@ class TestAuthUser:
 
     async def test_logout_user(self):
         # register user
-        new_user = await UserRepository(self.db_session).create(UserCreate(**self.payload_user_register))
+        new_user = await self.repo.create(UserCreateSchema(**self.payload_user_register))
         assert "id" in new_user.model_dump()
 
         # verify user
-        user = await UserService(self.db_session).verify_user(new_user)
+        user = await self.srv.verify_user(new_user)
         assert user.is_verified == 1
         assert user.profile.status_id == settings.STATUS_USER_ACTIVE
 
@@ -166,17 +168,19 @@ class TestAuthUser:
 
 class TestTokenAuth:
     @pytest.fixture(autouse=True)
-    def init(self,  client, api_prefix, db_session, payload_user_register):
+    def init(self, client, api_prefix, db_session, payload_user_register):
         self.client = client
         self.api_prefix = api_prefix
         self.db_session = db_session
         self.payload_user_register = payload_user_register
         self.url = f"{self.api_prefix}/auth/"
+        self.repo = UserRepository(self.db_session)
+        self.srv = UserService(self.repo)
 
     @pytest.fixture(autouse=True)
     async def setup_user(self):
         # create user
-        user = await UserRepository(self.db_session).create(UserCreate(**self.payload_user_register))
+        user = await self.repo.create(UserCreateSchema(**self.payload_user_register))
         assert "id" in user.model_dump()
 
         # update user role to Admin, verified, status
@@ -186,7 +190,7 @@ class TestTokenAuth:
         user.profile.role = "Admin"
 
         # update user
-        await UserRepository(self.db_session).add_one(user)
+        await self.repo.add_one(user)
         assert user.is_verified == True
         assert user.profile.status_id == settings.STATUS_USER_ACTIVE
         assert user.profile.role == "Admin"
@@ -233,17 +237,19 @@ class TestTokenAuth:
 
 class TestResetPassword:
     @pytest.fixture(autouse=True)
-    def init(self,  client, api_prefix, db_session, payload_user_register):
+    def init(self, client, api_prefix, db_session, payload_user_register):
         self.client = client
         self.api_prefix = api_prefix
         self.db_session = db_session
         self.payload_user_register = payload_user_register
         self.url = f"{self.api_prefix}/auth/"
+        self.repo = UserRepository(self.db_session)
+        self.srv = UserService(self.repo)
 
     @pytest.fixture(autouse=True)
     async def setup_user(self):
         # create user
-        user = await UserRepository(self.db_session).create(UserCreate(**self.payload_user_register))
+        user = await self.repo.create(UserCreateSchema(**self.payload_user_register))
         assert "id" in user.model_dump()
 
         # update verified, status
@@ -252,7 +258,7 @@ class TestResetPassword:
         user.profile.status_id = settings.STATUS_USER_ACTIVE
 
         # update user
-        await UserRepository(self.db_session).add_one(user)
+        await self.repo.add_one(user)
         assert user.is_verified == True
         assert user.profile.status_id == settings.STATUS_USER_ACTIVE
 
