@@ -21,14 +21,14 @@ class HeroPublisher(BaseModel, table=True):
     )
 
 
-class HeroPublisherCreate(SQLModel):
+class HeroPublisherCreateSchema(SQLModel):
     name: str
 
 
 @optional()
-class HeroPublisherUpdate(HeroPublisherCreate):
+class HeroPublisherUpdateSchema(HeroPublisherCreateSchema):
     pass
 
 
-class HeroPublisherSchema(HeroPublisherCreate, BaseModel):
+class HeroPublisherSchema(HeroPublisherCreateSchema, BaseModel):
     heroes: List["Hero"] | None = None

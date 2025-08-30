@@ -9,7 +9,7 @@ class SessionMixin:
         self.session = session
 
 
-class BaseService(SessionMixin):
+class BaseService:
     """Base class for application services."""
 
 

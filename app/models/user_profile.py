@@ -34,7 +34,7 @@ class UserProfile(BaseModel, table=True):
     )
 
 
-class UserProfileCreate(SQLModel):
+class UserProfileCreateSchema(SQLModel):
     phone: str | None = None
     role: str | None = None
     birthday: date | None = None
@@ -44,16 +44,16 @@ class UserProfileCreate(SQLModel):
 
 
 @optional()
-class UserProfileUpdate(SQLModel):
+class UserProfileUpdateSchema(SQLModel):
     phone: str
     birthday: date
 
 
-class UserProfilePhotoUpdate(SQLModel):
+class UserProfilePhotoUpdateSchema(SQLModel):
     photo: str
 
 
-class UserProfileSchema(UserProfileCreate, BaseModel):
+class UserProfileSchema(UserProfileCreateSchema, BaseModel):
     photo: str | None = None
     user_id: int | None = Field(exclude=True)
     status_id: int | None = Field(exclude=True)

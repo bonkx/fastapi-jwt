@@ -1,13 +1,12 @@
 
-from pydantic import EmailStr, ValidationInfo, field_validator, model_validator
+from pydantic import BaseModel, EmailStr, ValidationInfo, field_validator, model_validator
 from pydantic_core import PydanticCustomError
-from sqlmodel import Field, Relationship, SQLModel
-from typing_extensions import Self
+from sqlmodel import Field
 
 from ..core.config import settings
 
 
-class TokenSchema(SQLModel):
+class TokenSchema(BaseModel):
     detail: str | None = "Login successful"
     token_type: str = settings.TOKEN_TYPE
     access_token: str
@@ -17,7 +16,7 @@ class TokenSchema(SQLModel):
     user: dict | None = None
 
 
-class UserLoginModel(SQLModel):
+class LoginSchema(BaseModel):
     email: str = Field(max_length=40)
     password: str = Field(min_length=6)
 
@@ -31,11 +30,11 @@ class UserLoginModel(SQLModel):
     }
 
 
-class PasswordResetRequestModel(SQLModel):
+class PasswordResetSchema(BaseModel):
     email: EmailStr
 
 
-class PasswordResetConfirmModel(SQLModel):
+class PasswordResetConfirmSchema(BaseModel):
     new_password: str = Field(min_length=6)
     confirm_new_password: str = Field(min_length=6)
 

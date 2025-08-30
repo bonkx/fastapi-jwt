@@ -8,19 +8,23 @@ from fastapi.responses import JSONResponse
 from ..core.config import settings
 from ..core.security import (create_access_token, create_url_safe_token,
                              verify_password)
-from ..models import PasswordResetRequestModel, TokenSchema, UserLoginModel
+from ..models import PasswordResetSchema, TokenSchema, LoginSchema
 from ..utils.exceptions import (AccountNotVerified, AccountSuspended,
                                 InvalidCredentials, InvalidToken)
+
+from ..repositories.user_repo import UserRepository
 from .base import BaseService
 from .mail_service import MailService
 from .user_service import UserService
 
 
 class AuthService(BaseService):
+    def __init__(self, repo: UserRepository):
+        self.repo = repo
 
-    async def login_user(self, payload: UserLoginModel) -> TokenSchema:
+    async def login_user(self, payload: LoginSchema) -> TokenSchema:
         # get user data by email
-        user = await UserService(self.session).get_by_email(payload.email)
+        user = await self.repo.get_by_email(payload.email)
         # print(user.password)
 
         # check user status in-active or suspended
@@ -86,13 +90,13 @@ class AuthService(BaseService):
 
     async def password_reset_request(
         self,
-        email_data: PasswordResetRequestModel,
+        email_data: PasswordResetSchema,
         background_tasks: BackgroundTasks,
     ) -> JSONResponse:
         email = email_data.email
 
         # get user
-        await UserService(self.session).get_by_email(email)
+        await self.repo.get_by_email(email)
 
         expiration_datetime = datetime.now(UTC) + timedelta(seconds=1800)  # pragma: no cover # 30 minutes
         token = await create_url_safe_token({  # pragma: no cover

@@ -13,6 +13,7 @@ from .core.redis import token_in_blocklist
 from .core.security import decode_token
 from .models import User
 from .services.user_service import UserService
+from .repositories.user_repo import UserRepository
 from .utils.exceptions import (AccessTokenRequired, AccountNotVerified,
                                AccountSuspended, InsufficientPermission,
                                InvalidToken, RefreshTokenRequired)
@@ -71,7 +72,8 @@ async def get_current_user(
 ):
     user_email = token_details["user"]["email"]
 
-    user = await UserService(session).get_by_email(user_email)
+    repo = UserRepository(session)
+    user = await UserService(repo).get_by_email(user_email)
 
     if user.profile.status_id in [settings.STATUS_USER_IN_ACTIVE, settings.STATUS_USER_SUSPENDED]:
         raise AccountSuspended()

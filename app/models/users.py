@@ -6,7 +6,7 @@ from sqlmodel import Field, Relationship, SQLModel
 
 from ..utils.partial import optional
 from .base import BaseModel
-from .user_profile import UserProfile, UserProfileSchema, UserProfileUpdate
+from .user_profile import UserProfile, UserProfileSchema, UserProfileUpdateSchema
 
 
 class User(BaseModel, table=True):
@@ -35,7 +35,7 @@ class User(BaseModel, table=True):
         return f"{self.first_name} {self.last_name}"
 
 
-class UserCreate(SQLModel):
+class UserCreateSchema(SQLModel):
     first_name: str = Field(max_length=50)
     last_name: str = Field(max_length=50)
     username: str = Field(max_length=20)
@@ -56,14 +56,14 @@ class UserCreate(SQLModel):
 
 
 @optional()
-class UserUpdate(SQLModel):
+class UserUpdateSchema(SQLModel):
     first_name: str = Field(max_length=50)
     last_name: str = Field(max_length=50)
 
-    profile: UserProfileUpdate
+    profile: UserProfileUpdateSchema
 
 
-class UserSchema(UserCreate, BaseModel):
+class UserSchema(UserCreateSchema, BaseModel):
     password: str | None = Field(exclude=True)
     is_verified: bool
     is_superuser: bool

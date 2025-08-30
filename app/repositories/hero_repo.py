@@ -5,7 +5,7 @@ from fastapi import status
 from sqlalchemy.sql import text
 from sqlmodel import Field, Session, SQLModel, and_, col, or_, select
 
-from ..models import Hero, HeroCreate, HeroUpdate
+from ..models import Hero, HeroCreateSchema, HeroUpdateSchema
 from ..utils.exceptions import ResponseException
 from ..utils.validation import formatSorting
 from .base import BaseRepository
@@ -48,7 +48,7 @@ class HeroRepository(BaseRepository):
 
         return res
 
-    async def create(self, obj: HeroCreate) -> Hero:
+    async def create(self, obj: HeroCreateSchema) -> Hero:
         """Add a new data."""
         # validate basemodel
         db_hero = Hero.model_validate(obj)
@@ -56,7 +56,7 @@ class HeroRepository(BaseRepository):
         res = await self.add_one(db_hero)
         return res
 
-    async def edit(self, id: int, obj: HeroUpdate) -> Hero:
+    async def edit(self, id: int, obj: HeroUpdateSchema) -> Hero:
         """Edit data."""
         # get data
         hero_db = await self.get_by_id(id)

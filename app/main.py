@@ -35,7 +35,7 @@ app = FastAPI(
     },
     terms_of_service="https://example.com/tos",
     openapi_url=f"{config.settings.API_PREFIX}/openapi.json",
-    docs_url=f"{config.settings.API_PREFIX}/docs",
+    docs_url=f"{config.settings.API_PREFIX}/swagger",
     redoc_url=f"{config.settings.API_PREFIX}/redoc"
 )
 

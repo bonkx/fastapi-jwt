@@ -23,7 +23,7 @@ class Hero(BaseModel, table=True):
     )
 
 
-class HeroCreate(SQLModel):
+class HeroCreateSchema(SQLModel):
     name: str
     age: int
     secret_name: str
@@ -37,10 +37,10 @@ class HeroCreate(SQLModel):
 
 
 @optional()
-class HeroUpdate(HeroCreate):
+class HeroUpdateSchema(HeroCreateSchema):
     pass
 
 
-class HeroSchema(HeroCreate, BaseModel):
+class HeroSchema(HeroCreateSchema, BaseModel):
     hero_publisher_id: Annotated[int, Field(exclude=True)]  # exlude/hide field from response schema
     hero_publisher: HeroPublisher | None = None

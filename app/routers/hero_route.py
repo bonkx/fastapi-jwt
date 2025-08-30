@@ -5,50 +5,56 @@ from sqlmodel import Field, Session, SQLModel, create_engine, select
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 from ..core.database import get_session
-from ..models import Hero, HeroCreate, HeroSchema, HeroUpdate
+from ..models import Hero, HeroCreateSchema, HeroSchema, HeroUpdateSchema
 from ..services.hero_service import HeroService
+from ..repositories.hero_repo import HeroRepository
 from ..utils.pagination import CustomPage
 
 router = APIRouter()
+
+
+async def get_service(session: AsyncSession = Depends(get_session)) -> HeroService:
+    repo = HeroRepository(session)
+    return HeroService(repo)
 
 
 @router.get("/", response_model=CustomPage[HeroSchema])
 async def read_heroes(
     search: Optional[str] = Query(None, description="Search by name or secret_name", ),
     sorting: Optional[str] = Query(None, description="Sort by Model field e.g. id:desc or name:asc", ),
-    session: AsyncSession = Depends(get_session),
+    srv: HeroService = Depends(get_service)
 ):
-    return await HeroService(session).list(search=search, sorting=sorting)
+    return await srv.list(search=search, sorting=sorting)
 
 
 @router.get("/{id}", response_model=HeroSchema)
 async def get_hero(
     id: int,
-    session: AsyncSession = Depends(get_session),
+    srv: HeroService = Depends(get_service)
 ):
-    return await HeroService(session).get_by_id(id)
+    return await srv.get_by_id(id)
 
 
 @router.post("/", response_model=HeroSchema, status_code=status.HTTP_201_CREATED)
 async def create_hero(
-    hero: HeroCreate,
-    session: AsyncSession = Depends(get_session),
+    hero: HeroCreateSchema,
+    srv: HeroService = Depends(get_service)
 ):
-    return await HeroService(session).create(hero)
+    return await srv.create(hero)
 
 
 @router.put("/{id}", response_model=HeroSchema)
 async def update_hero(
     id: int,
-    hero: HeroUpdate,
-    session: AsyncSession = Depends(get_session),
+    hero: HeroUpdateSchema,
+    srv: HeroService = Depends(get_service)
 ):
-    return await HeroService(session).edit(id=id, obj=hero)
+    return await srv.edit(id=id, obj=hero)
 
 
 @router.delete("/{id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_hero(
     id: int,
-    session: AsyncSession = Depends(get_session),
+    srv: HeroService = Depends(get_service)
 ):
-    return await HeroService(session).delete(id)
+    return await srv.delete(id)
