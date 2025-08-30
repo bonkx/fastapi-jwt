@@ -4,10 +4,9 @@ from fastapi import APIRouter, Depends, FastAPI, Query, status
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 from ..core.database import get_session
-from ..models import (HeroPublisher, HeroPublisherCreateSchema, HeroPublisherSchema,
-                      HeroPublisherUpdateSchema)
-from ..services.hero_publisher_service import HeroPublisherService
 from ..repositories.hero_publisher_repo import HeroPublisherRepository
+from ..schemas.hero_publisher_schema import HeroPublisherSchema, HeroPublisherCreateSchema, HeroPublisherUpdateSchema
+from ..services.hero_publisher_service import HeroPublisherService
 from ..utils.pagination import CustomPage
 
 router = APIRouter()
@@ -18,7 +17,7 @@ async def get_service(session: AsyncSession = Depends(get_session)) -> HeroPubli
     return HeroPublisherService(repo)
 
 
-@router.get("/", response_model=CustomPage[HeroPublisher])
+@router.get("/", response_model=CustomPage[HeroPublisherSchema])
 async def read_hero_publishers(
     search: Optional[str] = Query(None, description="Search by name or secret_name", ),
     sorting: Optional[str] = Query(None, description="Sort by Model field e.g. id:desc or name:asc", ),
@@ -27,7 +26,7 @@ async def read_hero_publishers(
     return await srv.list(search=search, sorting=sorting)
 
 
-@router.get("/{id}", response_model=HeroPublisher)
+@router.get("/{id}", response_model=HeroPublisherSchema)
 async def get_hero_publisher(
     id: int,
     srv: HeroPublisherService = Depends(get_service)
@@ -35,7 +34,7 @@ async def get_hero_publisher(
     return await srv.get_by_id(id)
 
 
-@router.post("/", response_model=HeroPublisher, status_code=status.HTTP_201_CREATED)
+@router.post("/", response_model=HeroPublisherSchema, status_code=status.HTTP_201_CREATED)
 async def create_hero_publisher(
     payload: HeroPublisherCreateSchema,
     srv: HeroPublisherService = Depends(get_service)
@@ -43,7 +42,7 @@ async def create_hero_publisher(
     return await srv.create(payload)
 
 
-@router.put("/{id}", response_model=HeroPublisher)
+@router.put("/{id}", response_model=HeroPublisherSchema)
 async def update_hero_publisher(
     id: int,
     payload: HeroPublisherUpdateSchema,

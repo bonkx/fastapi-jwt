@@ -8,11 +8,12 @@ from sqlmodel import Field, Session, SQLModel, and_, col, or_, select
 
 from ..core.config import settings
 from ..core.security import generate_passwd_hash
-from ..models import (PasswordResetConfirmSchema, User, UserCreateSchema, UserProfile,
-                      UserUpdateSchema)
-from ..utils.exceptions import (ResponseException, UserAlreadyExists, UsernameAlreadyExists,
-                                UserNotFound)
+from ..models import User, UserProfile
+from ..schemas.auth_schema import PasswordResetConfirmSchema
+from ..schemas.user_schema import UserCreateSchema, UserSchema, UserUpdateSchema
+from ..utils.exceptions import (UserAlreadyExists, UsernameAlreadyExists, UserNotFound)
 from ..utils.validation import formatSorting
+
 from .base import BaseRepository
 
 

@@ -1,8 +1,9 @@
 from datetime import UTC, datetime, timedelta
 
-from ..core.config import settings
 from ..core import security as securityFn, email as emailFn
-from ..models import EmailSchema, User
+from ..core.config import settings
+from ..models import User
+from ..schemas.email_schema import EmailSchema
 
 from .base import EmailBackgroundTasksMixin
 

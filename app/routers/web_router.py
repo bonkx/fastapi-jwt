@@ -15,10 +15,10 @@ from ..core.database import get_session
 from ..core.redis import add_jti_to_blocklist, token_in_blocklist
 from ..core.security import decode_url_safe_token
 from ..dependencies import get_settings
-from ..models import PasswordResetConfirmSchema
+from ..repositories.user_repo import UserRepository
+from ..schemas.auth_schema import PasswordResetConfirmSchema
 from ..services.mail_service import MailService
 from ..services.user_service import UserService
-from ..repositories.user_repo import UserRepository
 from ..utils.exceptions import InvalidToken
 
 home_router = APIRouter()

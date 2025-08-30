@@ -5,9 +5,11 @@ from fastapi import status
 from sqlalchemy.sql import text
 from sqlmodel import Field, Session, SQLModel, and_, col, or_, select
 
-from ..models import HeroPublisher, HeroPublisherCreateSchema, HeroPublisherUpdateSchema
+from ..models import HeroPublisher
+from ..schemas.hero_publisher_schema import HeroPublisherCreateSchema, HeroPublisherUpdateSchema
 from ..utils.exceptions import ResponseException
 from ..utils.validation import formatSorting
+
 from .base import BaseRepository
 
 

@@ -7,8 +7,7 @@ from sqlmodel.ext.asyncio.session import AsyncSession
 
 from ..core.config import settings
 from ..core.database import get_session
-from ..dependencies import AccessTokenBearer, get_current_user
-from ..models import UserSchema
+from ..dependencies import AccessTokenBearer, CurrentUser
 from ..utils.file import upload_file, upload_image
 
 upload_router = APIRouter(
@@ -19,7 +18,7 @@ upload_router = APIRouter(
 @upload_router.post("/image")
 async def upload_image_file(
     file: UploadFile,
-    user: Annotated[UserSchema, Depends(get_current_user)],
+    user: CurrentUser,
     session: AsyncSession = Depends(get_session),
 ):
     try:
@@ -38,7 +37,7 @@ async def upload_image_file(
 @upload_router.post("/file")
 async def upload_files(
     file: UploadFile,
-    user: Annotated[UserSchema, Depends(get_current_user)],
+    user: CurrentUser,
     session: AsyncSession = Depends(get_session),
 ):
     try:

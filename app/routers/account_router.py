@@ -8,12 +8,11 @@ from sqlmodel.ext.asyncio.session import AsyncSession
 from ..core.config import Settings
 from ..core.database import get_session
 from ..core.security import decode_token
-from ..dependencies import AccessTokenBearer, get_current_user, get_settings
-from ..models import UserSchema, UserUpdateSchema
+from ..dependencies import AccessTokenBearer, CurrentUser, get_settings
+from ..repositories.user_repo import UserRepository
+from ..schemas.user_schema import UserSchema, UserUpdateSchema
 from ..services.user_service import UserService
 from ..utils.file import upload_image, upload_image_crop
-
-from ..repositories.user_repo import UserRepository
 
 router = APIRouter(
     dependencies=[Depends(AccessTokenBearer())]
@@ -27,7 +26,7 @@ async def get_service(session: AsyncSession = Depends(get_session)) -> UserServi
 
 @router.get("/me", response_model=UserSchema)
 async def get_profile(
-    user: Annotated[UserSchema, Depends(get_current_user)],
+    user: CurrentUser,
 ):
     return user
 
@@ -35,7 +34,7 @@ async def get_profile(
 @router.patch("/update", response_model=UserSchema)
 async def update_profile(
     payload: UserUpdateSchema,
-    user: Annotated[UserSchema, Depends(get_current_user)],
+    user: CurrentUser,
     srv: UserService = Depends(get_service)
 ):
     return await srv.update_profile(user, payload)
@@ -44,7 +43,7 @@ async def update_profile(
 @router.post("/photo", response_model=UserSchema)
 async def upload_photo_profile(
     file: UploadFile,
-    user: Annotated[UserSchema, Depends(get_current_user)],
+    user: CurrentUser,
     srv: UserService = Depends(get_service)
 ):
     try:

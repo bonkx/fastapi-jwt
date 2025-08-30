@@ -1,6 +1,6 @@
 # Defines dependencies used by the routers
 from functools import lru_cache
-from typing import Any, List
+from typing import Any, List, Annotated
 
 from fastapi import Depends, Request
 from fastapi.security import HTTPBearer
@@ -12,8 +12,9 @@ from .core.database import get_session
 from .core.redis import token_in_blocklist
 from .core.security import decode_token
 from .models import User
-from .services.user_service import UserService
 from .repositories.user_repo import UserRepository
+from .schemas.user_schema import UserSchema
+from .services.user_service import UserService
 from .utils.exceptions import (AccessTokenRequired, AccountNotVerified,
                                AccountSuspended, InsufficientPermission,
                                InvalidToken, RefreshTokenRequired)
@@ -65,27 +66,50 @@ class RefreshTokenBearer(TokenBearer):
             raise RefreshTokenRequired()
 
 
-async def get_current_user(
-    token_details: dict = Depends(AccessTokenBearer()),
-    session: AsyncSession = Depends(get_session),
-    settings: Settings = Depends(get_settings),
-):
-    user_email = token_details["user"]["email"]
+# async def get_current_user(
+#     token_details: dict = Depends(AccessTokenBearer()),
+#     session: AsyncSession = Depends(get_session),
+#     settings: Settings = Depends(get_settings),
+# ):
+#     user_email = token_details["user"]["email"]
 
-    repo = UserRepository(session)
-    user = await UserService(repo).get_by_email(user_email)
+#     repo = UserRepository(session)
+#     user = await UserService(repo).get_by_email(user_email)
 
-    if user.profile.status_id in [settings.STATUS_USER_IN_ACTIVE, settings.STATUS_USER_SUSPENDED]:
-        raise AccountSuspended()
+#     if user.profile.status_id in [settings.STATUS_USER_IN_ACTIVE, settings.STATUS_USER_SUSPENDED]:
+#         raise AccountSuspended()
 
-    return user
+#     return user
+
+class GetCurrentUser:
+    async def __call__(
+        self,
+        token_details: dict = Depends(AccessTokenBearer()),
+        session: AsyncSession = Depends(get_session),
+        settings: Settings = Depends(get_settings),
+    ) -> User:
+        user_email = token_details["user"]["email"]
+
+        repo = UserRepository(session)
+        user = await UserService(repo).get_by_email(user_email)
+
+        if user.profile.status_id in [
+            settings.STATUS_USER_IN_ACTIVE,
+            settings.STATUS_USER_SUSPENDED,
+        ]:
+            raise AccountSuspended()
+
+        return user
+
+
+CurrentUser = Annotated[UserSchema, Depends(GetCurrentUser())]
 
 
 class RoleChecker:
     def __init__(self, allowed_roles: List[str]) -> None:
         self.allowed_roles = allowed_roles
 
-    def __call__(self, current_user: User = Depends(get_current_user)) -> Any:
+    def __call__(self, current_user: CurrentUser) -> Any:
         if not current_user.is_verified:
             raise AccountNotVerified()
         if current_user.profile.role.upper() in self.allowed_roles:

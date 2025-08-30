@@ -5,9 +5,9 @@ from sqlmodel import Field, Session, SQLModel, create_engine, select
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 from ..core.database import get_session
-from ..models import Hero, HeroCreateSchema, HeroSchema, HeroUpdateSchema
-from ..services.hero_service import HeroService
 from ..repositories.hero_repo import HeroRepository
+from ..schemas.hero_schema import HeroSchema, HeroCreateSchema, HeroUpdateSchema
+from ..services.hero_service import HeroService
 from ..utils.pagination import CustomPage
 
 router = APIRouter()

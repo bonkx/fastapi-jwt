@@ -2,8 +2,9 @@ from typing import List, Optional
 
 from fastapi import HTTPException, status
 
-from ..models import Hero, HeroCreateSchema, HeroUpdateSchema
+from ..models import Hero
 from ..repositories.hero_repo import HeroRepository
+from ..schemas.hero_schema import HeroCreateSchema, HeroUpdateSchema
 from ..utils.exceptions import ResponseException
 
 from .base import BaseService

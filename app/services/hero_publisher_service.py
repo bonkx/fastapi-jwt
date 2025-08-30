@@ -1,7 +1,9 @@
 from typing import List, Optional
 
-from ..models import HeroPublisher, HeroPublisherCreateSchema, HeroPublisherUpdateSchema
+from ..models import HeroPublisher
 from ..repositories.hero_publisher_repo import HeroPublisherRepository
+from ..schemas.hero_publisher_schema import HeroPublisherCreateSchema, HeroPublisherUpdateSchema
+
 from .base import BaseService
 
 # Serivce / Use Case

@@ -2,9 +2,10 @@ from datetime import datetime, timedelta
 from typing import List, Optional
 
 from ..core.config import settings
-from ..models import (PasswordResetConfirmSchema, User, UserCreateSchema, UserSchema,
-                      UserUpdateSchema)
+from ..models import User
 from ..repositories.user_repo import UserRepository
+from ..schemas.auth_schema import PasswordResetConfirmSchema
+from ..schemas.user_schema import UserCreateSchema, UserSchema, UserUpdateSchema
 
 from .base import BaseService
 

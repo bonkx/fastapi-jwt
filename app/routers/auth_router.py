@@ -9,14 +9,14 @@ from ..core.database import get_session
 from ..core.email import send_email_background
 from ..core.redis import add_jti_to_blocklist
 from ..dependencies import AccessTokenBearer, RefreshTokenBearer
-from ..models import (EmailSchema, PasswordResetSchema, TokenSchema,
-                      UserCreateSchema, LoginSchema, UserSchema)
+from ..repositories.user_repo import UserRepository
+from ..schemas.auth_schema import (LoginSchema, PasswordResetSchema, TokenSchema)
+from ..schemas.email_schema import EmailSchema
+from ..schemas.user_schema import UserSchema, UserCreateSchema
 from ..services.auth_service import AuthService
 from ..services.mail_service import MailService
 from ..services.user_service import UserService
 from ..utils.response import ResponseDetailSchema
-
-from ..repositories.user_repo import UserRepository
 
 router = APIRouter()
 
@@ -61,7 +61,7 @@ async def login_user_account(
 async def get_new_access_token(
     token_details: dict = Depends(RefreshTokenBearer()),
     srv: AuthService = Depends(get_service)
-):
+) -> TokenSchema:
     return await srv.get_new_access_token(token_details)
 
 
@@ -76,7 +76,7 @@ async def password_reset_request(
 
 @router.get("/logout", include_in_schema=False)
 @router.post("/logout", response_model=ResponseDetailSchema)
-async def revoke_token(token_details: dict = Depends(AccessTokenBearer())):
+async def revoke_token(token_details: dict = Depends(AccessTokenBearer())) -> JSONResponse:
     jti = token_details["jti"]
 
     # add jti in blocklist redis

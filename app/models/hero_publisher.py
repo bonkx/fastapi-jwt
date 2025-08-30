@@ -3,7 +3,6 @@ from typing import TYPE_CHECKING, Annotated, List, Optional
 from pydantic import BaseModel, field_validator
 from sqlmodel import Field, Relationship, SQLModel
 
-from ..utils.partial import optional
 from .base import BaseModel
 
 if TYPE_CHECKING:
@@ -19,16 +18,3 @@ class HeroPublisher(BaseModel, table=True):
         back_populates="hero_publisher", cascade_delete=True,
         sa_relationship_kwargs={"lazy": "selectin"}
     )
-
-
-class HeroPublisherCreateSchema(SQLModel):
-    name: str
-
-
-@optional()
-class HeroPublisherUpdateSchema(HeroPublisherCreateSchema):
-    pass
-
-
-class HeroPublisherSchema(HeroPublisherCreateSchema, BaseModel):
-    heroes: List["Hero"] | None = None

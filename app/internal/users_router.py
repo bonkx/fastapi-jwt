@@ -4,9 +4,9 @@ from fastapi import APIRouter, Depends, FastAPI, Query, status
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 from ..core.database import get_session
-from ..models import UserSchema
-from ..services.user_service import UserService
 from ..repositories.user_repo import UserRepository
+from ..schemas.user_schema import UserSchema
+from ..services.user_service import UserService
 from ..utils.pagination import CustomPage
 
 router = APIRouter()

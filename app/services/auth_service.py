@@ -8,14 +8,13 @@ from fastapi.responses import JSONResponse
 from ..core.config import settings
 from ..core.security import (create_access_token, create_url_safe_token,
                              verify_password)
-from ..models import PasswordResetSchema, TokenSchema, LoginSchema
+from ..repositories.user_repo import UserRepository
+from ..schemas.auth_schema import PasswordResetSchema, TokenSchema, LoginSchema
 from ..utils.exceptions import (AccountNotVerified, AccountSuspended,
                                 InvalidCredentials, InvalidToken)
 
-from ..repositories.user_repo import UserRepository
 from .base import BaseService
 from .mail_service import MailService
-from .user_service import UserService
 
 
 class AuthService(BaseService):

@@ -33,6 +33,11 @@ $ python initial_data.py
 # run the app
 $ python main.py
 
+# list uvicorn (windows)
+$ tasklist | findstr uvicorn
+# kill uvicorn (windows)
+$ taskkill /PID 22396 /F
+
 # run pytest
 $ pytest
 
