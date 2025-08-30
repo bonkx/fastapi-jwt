@@ -15,13 +15,19 @@ from ..core.database import get_session
 from ..core.redis import add_jti_to_blocklist, token_in_blocklist
 from ..core.security import decode_url_safe_token
 from ..dependencies import get_settings
-from ..models import PasswordResetConfirmModel
+from ..repositories.user_repo import UserRepository
+from ..schemas.auth_schema import PasswordResetConfirmSchema
 from ..services.mail_service import MailService
 from ..services.user_service import UserService
 from ..utils.exceptions import InvalidToken
 
 home_router = APIRouter()
 account_router = APIRouter()
+
+
+async def get_service(session: AsyncSession = Depends(get_session)) -> UserService:
+    repo = UserRepository(session)
+    return UserService(repo)
 
 # app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")
@@ -32,20 +38,20 @@ async def root():
     return {"message": "Server is Running..."}
 
 
-@home_router.get("/docs", include_in_schema=False)
-async def docs(settings: Annotated[config.Settings, Depends(get_settings)]):
+@home_router.get("/swagger", include_in_schema=False)
+async def swagger(settings: Annotated[config.Settings, Depends(get_settings)]):
     # """
     # # Redirect
-    # to documentation (`/docs/`).
+    # to documentation (`/swagger/`).
     # """
-    return RedirectResponse(url=f"{settings.API_PREFIX}/docs/")
+    return RedirectResponse(url=f"{settings.API_PREFIX}/swagger/")
 
 
 @account_router.get("/verify/{token}", response_class=HTMLResponse)
 async def verify_verification_link(
     request: Request,
     token: str,
-    session: AsyncSession = Depends(get_session),
+    srv: UserService = Depends(get_service)
 ):
     try:
         msg = "Account Verification Successful!"
@@ -55,7 +61,7 @@ async def verify_verification_link(
         # print("decode_token:", decode_token)
 
         # get user data by email
-        user = await UserService(session).get_by_email(decode_token["email"])
+        user = await srv.get_by_email(decode_token["email"])
         # print(user)
         # print("user.is_verified:", user.is_verified)
         if user.profile.status_id in [config.settings.STATUS_USER_IN_ACTIVE, config.settings.STATUS_USER_SUSPENDED]:  # pragma: no cover
@@ -63,7 +69,7 @@ async def verify_verification_link(
         elif user.is_verified:  # pragma: no cover
             msg = "Account already verified"
         else:
-            await UserService(session).verify_user(user)  # pragma: no cover
+            await srv.verify_user(user)  # pragma: no cover
     except Exception as e:
         print(str(e))
         msg = "Oops... Invalid Token"
@@ -82,7 +88,7 @@ async def resend_verification_link(
     background_tasks: BackgroundTasks,
     request: Request,
     token: str,
-    session: AsyncSession = Depends(get_session),
+    srv: UserService = Depends(get_service)
 ):
     try:
         msg = "New verification email has been successfully sent"
@@ -92,7 +98,7 @@ async def resend_verification_link(
         # print("decode_token:", decode_token)
 
         # get user data by email
-        user = await UserService(session).get_by_email(decode_token["email"])
+        user = await srv.get_by_email(decode_token["email"])
         # print(user)
 
         if user.is_verified:  # pragma: no cover
@@ -149,7 +155,7 @@ async def password_reset_confirm(
 async def request_password_reset(
     request: Request,
     token: str,
-    session: AsyncSession = Depends(get_session),
+    srv: UserService = Depends(get_service)
 ):
     context = {
         "method": "POST",
@@ -168,7 +174,7 @@ async def request_password_reset(
             raise Exception("Token is invalid Or expired")
 
         # get user data by email
-        user = await UserService(session).get_by_email(decode_token["email"])
+        user = await srv.get_by_email(decode_token["email"])
 
         form_data = await request.form()  # pragma: no cover
         payload = {
@@ -177,7 +183,7 @@ async def request_password_reset(
         }
 
         # reset user password
-        if await UserService(session).reset_password(user, PasswordResetConfirmModel(**payload)):
+        if await srv.reset_password(user, PasswordResetConfirmSchema(**payload)):
             # blacklist token
             await add_jti_to_blocklist(decode_token["jti"])  # pragma: no cover
     except ValidationError as e:

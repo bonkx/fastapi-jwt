@@ -6,7 +6,7 @@ from PIL import Image  # type: ignore
 
 from app.core.config import settings
 from app.core.security import create_access_token
-from app.models import UserCreate
+from app.schemas.user_schema import UserCreateSchema
 from app.repositories.user_repo import UserRepository
 
 from . import pytest, pytestmark
@@ -14,7 +14,7 @@ from . import pytest, pytestmark
 
 class TestAccountUser:
     @pytest.fixture(autouse=True)
-    def init(self,  client, api_prefix, db_session, payload_user_register, payload_user_login):
+    def init(self, client, api_prefix, db_session, payload_user_register, payload_user_login):
         self.client = client
         self.api_prefix = api_prefix
         self.db_session = db_session
@@ -25,7 +25,7 @@ class TestAccountUser:
     @pytest.fixture(autouse=True)
     async def setup_user(self):
         # create user
-        user = await UserRepository(self.db_session).create(UserCreate(**self.payload_user_register))
+        user = await UserRepository(self.db_session).create(UserCreateSchema(**self.payload_user_register))
         assert "id" in user.model_dump()
 
         # update user role to Admin, verified, status
@@ -136,7 +136,7 @@ class TestAccountUser:
 
         assert response.status_code == 200
         assert "id" in data
-        assert data["profile"]["photo"] != None
+        assert data["profile"]["photo"] is not None
 
     async def test_upload_photo_profile_failed(self):
         # generate access_token

@@ -9,7 +9,7 @@ async def test_root(client):
 
 
 async def test_docs(client):
-    response = await client.get("/docs")
+    response = await client.get("/swagger")
 
     # 307 Temporary Redirect
     assert response.status_code == 307

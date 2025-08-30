@@ -9,8 +9,10 @@ from ..core.database import get_session
 from ..core.email import send_email_background
 from ..core.redis import add_jti_to_blocklist
 from ..dependencies import AccessTokenBearer, RefreshTokenBearer
-from ..models import (EmailSchema, PasswordResetRequestModel, TokenSchema,
-                      UserCreate, UserLoginModel, UserSchema)
+from ..repositories.user_repo import UserRepository
+from ..schemas.auth_schema import (LoginSchema, PasswordResetSchema, TokenSchema)
+from ..schemas.email_schema import EmailSchema
+from ..schemas.user_schema import UserSchema, UserCreateSchema
 from ..services.auth_service import AuthService
 from ..services.mail_service import MailService
 from ..services.user_service import UserService
@@ -19,13 +21,23 @@ from ..utils.response import ResponseDetailSchema
 router = APIRouter()
 
 
+async def get_service(session: AsyncSession = Depends(get_session)) -> AuthService:
+    repo = UserRepository(session)
+    return AuthService(repo)
+
+
+async def get_user_service(session: AsyncSession = Depends(get_session)) -> UserService:
+    repo = UserRepository(session)
+    return UserService(repo)
+
+
 @router.post("/register", status_code=status.HTTP_200_OK)
 async def create_user_account(
-    user_data: UserCreate,
+    user_data: UserCreateSchema,
     background_tasks: BackgroundTasks,
-    session: AsyncSession = Depends(get_session),
+    userSrv: UserService = Depends(get_user_service)
 ):
-    new_user = await UserService(session).create(user_data)
+    new_user = await userSrv.create(user_data)
 
     if new_user:  # pragma: no cover
         # Send link verification email
@@ -39,32 +51,32 @@ async def create_user_account(
 
 @router.post("/login", status_code=status.HTTP_200_OK)
 async def login_user_account(
-    payload: UserLoginModel,
-    session: AsyncSession = Depends(get_session),
+    payload: LoginSchema,
+    srv: AuthService = Depends(get_service)
 ) -> TokenSchema:
-    return await AuthService(session).login_user(payload)
+    return await srv.login_user(payload)
 
 
 @router.post("/refresh-token")
 async def get_new_access_token(
     token_details: dict = Depends(RefreshTokenBearer()),
-    session: AsyncSession = Depends(get_session),
-):
-    return await AuthService(session).get_new_access_token(token_details)
+    srv: AuthService = Depends(get_service)
+) -> TokenSchema:
+    return await srv.get_new_access_token(token_details)
 
 
 @router.post("/password-reset-request")
 async def password_reset_request(
-    payload: PasswordResetRequestModel,
+    payload: PasswordResetSchema,
     background_tasks: BackgroundTasks,
-    session: AsyncSession = Depends(get_session),
+    srv: AuthService = Depends(get_service)
 ) -> JSONResponse:
-    return await AuthService(session).password_reset_request(payload, background_tasks)
+    return await srv.password_reset_request(payload, background_tasks)
 
 
 @router.get("/logout", include_in_schema=False)
 @router.post("/logout", response_model=ResponseDetailSchema)
-async def revoke_token(token_details: dict = Depends(AccessTokenBearer())):
+async def revoke_token(token_details: dict = Depends(AccessTokenBearer())) -> JSONResponse:
     jti = token_details["jti"]
 
     # add jti in blocklist redis

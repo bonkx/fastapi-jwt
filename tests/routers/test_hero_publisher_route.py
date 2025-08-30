@@ -5,7 +5,8 @@ from faker import Faker
 from fastapi import status
 from sqlmodel import Field, Session, SQLModel, and_, col, or_, select
 
-from app.models import HeroPublisher, HeroPublisherCreate
+from app.models import HeroPublisher
+from app.schemas.hero_publisher_schema import HeroPublisherCreateSchema
 from app.repositories.hero_publisher_repo import HeroPublisherRepository
 
 from . import pytest, pytestmark
@@ -16,7 +17,7 @@ fake = Faker()
 class TestCreateHeroPublisher:
 
     @pytest.fixture(autouse=True)
-    def init(self,  client, api_prefix, db_session, payload_hero_publisher, payload_hero_publisher_update):
+    def init(self, client, api_prefix, db_session, payload_hero_publisher, payload_hero_publisher_update):
         self.client = client
         self.api_prefix = api_prefix
         self.db_session = db_session
@@ -69,7 +70,7 @@ class TestCreateHeroPublisher:
 
 class TestGetHeroPublisher:
     @pytest.fixture(autouse=True)
-    def init(self,  client, api_prefix, db_session, payload_hero_publisher, payload_hero_publisher_update):
+    def init(self, client, api_prefix, db_session, payload_hero_publisher, payload_hero_publisher_update):
         self.client = client
         self.api_prefix = api_prefix
         self.db_session = db_session
@@ -126,7 +127,7 @@ class TestGetHeroPublisher:
 
 class TestUpdateHeroPublisher:
     @pytest.fixture(autouse=True)
-    def init(self,  client, api_prefix, db_session, payload_hero_publisher, payload_hero_publisher_update):
+    def init(self, client, api_prefix, db_session, payload_hero_publisher, payload_hero_publisher_update):
         self.client = client
         self.api_prefix = api_prefix
         self.db_session = db_session
@@ -187,7 +188,7 @@ class TestUpdateHeroPublisher:
 
 class TestDeleteHeroPublisher:
     @pytest.fixture(autouse=True)
-    def init(self,  client, api_prefix, db_session, payload_hero_publisher, payload_hero_publisher_update):
+    def init(self, client, api_prefix, db_session, payload_hero_publisher, payload_hero_publisher_update):
         self.client = client
         self.api_prefix = api_prefix
         self.db_session = db_session
@@ -214,7 +215,7 @@ class TestDeleteHeroPublisher:
 
 class TestListHeroPublisher:
     @pytest.fixture(autouse=True)
-    def init(self,  client, api_prefix, db_session, payload_hero_publisher, payload_hero_publisher_update):
+    def init(self, client, api_prefix, db_session, payload_hero_publisher, payload_hero_publisher_update):
         self.client = client
         self.api_prefix = api_prefix
         self.db_session = db_session
@@ -244,7 +245,7 @@ class TestListHeroPublisher:
         # generate mock data using faker
         for _ in range(n):
             value_for_seaching = fake.name()
-            model = HeroPublisherCreate(
+            model = HeroPublisherCreateSchema(
                 name=value_for_seaching,
             )
             db_model = HeroPublisher.model_validate(model)

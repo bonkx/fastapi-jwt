@@ -11,8 +11,10 @@ from app.core.config import settings
 from app.core.email import fm
 from app.core.redis import add_jti_to_blocklist
 from app.core.security import create_url_safe_token, decode_url_safe_token
-from app.models import (User, UserCreate, UserLoginModel, UserProfileCreate,
-                        UserUpdate)
+from app.models import User
+from app.schemas.user_schema import UserCreateSchema, UserUpdateSchema
+from app.schemas.user_profile_schema import UserProfileCreateSchema
+from app.schemas.auth_schema import LoginSchema
 from app.repositories.user_repo import UserRepository
 from app.services.auth_service import AuthService
 
@@ -23,18 +25,20 @@ fake = Faker()
 
 class TestInternalGetUsers:
     @pytest.fixture(autouse=True)
-    def init(self,  client, api_prefix, db_session, payload_user_register, payload_user_login):
+    def init(self, client, api_prefix, db_session, payload_user_register, payload_user_login):
         self.client = client
         self.api_prefix = api_prefix
         self.db_session = db_session
         self.payload_user_register = payload_user_register
         self.payload_user_login = payload_user_login
         self.url = f"admin{self.api_prefix}/users/"
+        self.repo = UserRepository(self.db_session)
+        self.srv = AuthService(self.repo)
 
     @pytest.fixture(autouse=True)
     async def setup_user(self):
         # create user
-        user = await UserRepository(self.db_session).create(UserCreate(**self.payload_user_register))
+        user = await self.repo.create(UserCreateSchema(**self.payload_user_register))
         assert "id" in user.model_dump()
 
         # update user role to Admin, verified, status
@@ -44,7 +48,7 @@ class TestInternalGetUsers:
         user.profile.role = "Admin"
 
         # update user
-        await UserRepository(self.db_session).add_one(user)
+        await self.repo.add_one(user)
         assert user.is_verified == True
         assert user.profile.status_id == settings.STATUS_USER_ACTIVE
         assert user.profile.role == "Admin"
@@ -52,7 +56,7 @@ class TestInternalGetUsers:
         self.user = user
 
         # generate token
-        self.token = await AuthService(self.db_session).login_user(UserLoginModel(**self.payload_user_login))
+        self.token = await self.srv.login_user(LoginSchema(**self.payload_user_login))
         # set headers
         self.headers = {"Authorization": f"Bearer {self.token.access_token}"}
 
@@ -79,7 +83,7 @@ class TestInternalGetUsers:
     async def test_delete_user(self):
         # create user for deletion
         fake_email = fake.email()
-        fake_user = await UserRepository(self.db_session).create(UserCreate(
+        fake_user = await self.repo.create(UserCreateSchema(
             first_name=fake.first_name(),
             last_name=fake.last_name(),
             username=fake.user_name(),
@@ -141,7 +145,7 @@ class TestInternalGetUsers:
 
         for i in range(4):
             name_for_seaching = fake.first_name()
-            await UserRepository(self.db_session).create(UserCreate(
+            await self.repo.create(UserCreateSchema(
                 first_name=name_for_seaching,
                 last_name=fake.last_name(),
                 username=fake.user_name(),

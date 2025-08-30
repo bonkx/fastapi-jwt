@@ -8,11 +8,12 @@ from sqlmodel import Field, Session, SQLModel, and_, col, or_, select
 
 from ..core.config import settings
 from ..core.security import generate_passwd_hash
-from ..models import (PasswordResetConfirmModel, User, UserCreate, UserProfile,
-                      UserUpdate)
-from ..utils.exceptions import (ResponseException, UserAlreadyExists,
-                                UserNotFound)
+from ..models import User, UserProfile
+from ..schemas.auth_schema import PasswordResetConfirmSchema
+from ..schemas.user_schema import UserCreateSchema, UserSchema, UserUpdateSchema
+from ..utils.exceptions import (UserAlreadyExists, UsernameAlreadyExists, UserNotFound)
 from ..utils.validation import formatSorting
+
 from .base import BaseRepository
 
 
@@ -51,7 +52,7 @@ class UserRepository(BaseRepository):
 
         return res
 
-    async def create(self, obj: UserCreate) -> User:
+    async def create(self, obj: UserCreateSchema) -> User:
         """Register a new data."""
         # validate basemodel
         db_dict = User.model_validate(obj)
@@ -77,7 +78,7 @@ class UserRepository(BaseRepository):
         # user.password = str(user.password)
         return user
 
-    async def edit(self, id: int, obj: UserUpdate) -> User:
+    async def edit(self, id: int, obj: UserUpdateSchema) -> User:
         """Edit data."""
         # get data
         data_db = await self.get_by_id(id)
@@ -114,6 +115,22 @@ class UserRepository(BaseRepository):
 
         return res
 
+    async def check_user_exists(self, email: str) -> None:
+        """Check check_user_exists by email."""
+        stmt = select(User).where(User.email == email)
+        existing_user = await self.get_one(stmt)
+
+        if existing_user:
+            raise UserAlreadyExists()
+
+    async def check_username_exists(self, username: str) -> None:
+        """Check check_user_exists by username."""
+        stmt = select(User).where(User.username == username)
+        existing_user = await self.get_one(stmt)
+
+        if existing_user:
+            raise UsernameAlreadyExists()
+
     async def verify_user(self, user: User) -> User:
         # if verify, update status=1, is_verified=True, verified_at=now()
         user.is_verified = True
@@ -123,9 +140,9 @@ class UserRepository(BaseRepository):
         # process update data
         return await self.add_one(user)
 
-    async def reset_password(self, user: User, payload: PasswordResetConfirmModel) -> User:
+    async def reset_password(self, user: User, payload: PasswordResetConfirmSchema) -> User:
         # validate basemodel
-        PasswordResetConfirmModel.model_validate(payload)
+        PasswordResetConfirmSchema.model_validate(payload)
 
         # generate hashed password
         user.password = await generate_passwd_hash(payload.new_password)
@@ -133,7 +150,7 @@ class UserRepository(BaseRepository):
         # process save data
         return await self.add_one(user)
 
-    async def update_profile(self, user: User, payload: UserUpdate) -> User:
+    async def update_profile(self, user: User, payload: UserUpdateSchema) -> User:
         # prepare update user
         user.sqlmodel_update(payload.model_dump(exclude_unset=True))
 

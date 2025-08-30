@@ -3,7 +3,8 @@
 from fastapi import BackgroundTasks
 from fastapi_mail import ConnectionConfig, FastMail, MessageSchema, MessageType
 
-from ..models import EmailSchema
+from ..schemas.email_schema import EmailSchema
+
 from .config import settings
 
 email_conf = ConnectionConfig(

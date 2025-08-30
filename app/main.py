@@ -26,7 +26,13 @@ app = FastAPI(
     title=config.settings.OPEN_API_TITLE,
     description=config.settings.OPEN_API_DESCRIPTION,
     version=config.settings.APP_VERSION,
-    swagger_ui_parameters={"defaultModelsExpandDepth": -1},
+    swagger_ui_parameters={
+        "defaultModelsExpandDepth": -1,
+        "displayRequestDuration": True,
+        "persistAuthorization": True,
+        "filter": True,
+        "operationsSorter": "alpha",
+    },
     license_info={"name": "MIT License", "url": "https://opensource.org/license/mit"},
     contact={
         "name": "Farrid Putra",
@@ -35,7 +41,7 @@ app = FastAPI(
     },
     terms_of_service="https://example.com/tos",
     openapi_url=f"{config.settings.API_PREFIX}/openapi.json",
-    docs_url=f"{config.settings.API_PREFIX}/docs",
+    docs_url=f"{config.settings.API_PREFIX}/swagger",
     redoc_url=f"{config.settings.API_PREFIX}/redoc"
 )
 
